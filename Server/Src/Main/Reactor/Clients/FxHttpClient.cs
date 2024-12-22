@@ -28,7 +28,7 @@ public class FxHttpClient
       .Catch<ExchangeRatesDto?, Exception>(ex => Observable.Empty<ExchangeRatesDto?>());
   }
 
-  private IObservable<ExchangeRatesDto?> UnmarshallClientResult(HttpResponseMessage response)
+  private static IObservable<ExchangeRatesDto?> UnmarshallClientResult(HttpResponseMessage response)
   {
     return Observable.FromAsync(async () =>
     {

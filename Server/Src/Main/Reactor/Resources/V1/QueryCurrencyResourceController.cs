@@ -49,7 +49,7 @@ public class QueryCurrencyResourceController: ControllerBase
   {
     Logger.Info("QueryCurrencyResourceController@GetExchangeRates initiated...");
     return _queryCurrenciesHandler.QueryPartyExchangeRates()
-      .Catch<IActionResult, Exception>(ex => _throwableHandler.Handle(ex, StatusCodes.Status404NotFound))
-      .ToTask();
+    .Catch<IActionResult, Exception>(ex => _throwableHandler.Handle(ex, StatusCodes.Status404NotFound))
+    .ToTask();
   }
 }
