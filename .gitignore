@@ -3,3 +3,23 @@ obj/
 /packages/
 riderModule.iml
 /_ReSharper.Caches/
+
+
+.idea
+.vscode/
+.dbeaver
+/Scripts
+*.DS_Store
+.DS_Store
+/.apt_generated_tests/
+*/bin
+*/obj
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.sln.DotSettings
+*.csproj.DotSettings

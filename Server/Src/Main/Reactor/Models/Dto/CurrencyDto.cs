@@ -1,4 +1,4 @@
-namespace server.za.co.finance.models.dto;
+namespace Src.Main.Reactor.Models.Dto;
 
 public class CurrencyDto
 {

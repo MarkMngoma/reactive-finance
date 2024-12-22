@@ -1,9 +1,9 @@
 using System.Reactive.Linq;
+using System.Text.Json;
 using log4net;
-using Newtonsoft.Json;
-using Server.Models.Dto;
+using Src.Main.Reactor.Models.Dto;
 
-namespace server.za.co.bitbridge.clients;
+namespace Src.Main.Reactor.Clients;
 
 public class FxHttpClient
 {
@@ -23,8 +23,7 @@ public class FxHttpClient
       .FromAsync(() => _httpClient.GetAsync("https://latest.currency-api.pages.dev/v1/currencies/eur.json"))
       .Retry(3)
       .Timeout(TimeSpan.FromMilliseconds(2000))
-      .Do(response =>
-        Logger.Info($"QueryCurrenciesHandler@QueryExternalPartyExchangeRates http result :: {response.IsSuccessStatusCode}"))
+      .Do(response => Logger.Info($"QueryCurrenciesHandler@QueryExternalPartyExchangeRates http result :: {response.IsSuccessStatusCode}"))
       .SelectMany(UnmarshallClientResult)
       .Catch<ExchangeRatesDto?, Exception>(ex => Observable.Empty<ExchangeRatesDto?>());
   }
@@ -35,7 +34,10 @@ public class FxHttpClient
     {
       var content = await response.Content.ReadAsStringAsync();
       Logger.Info($"FxHttpClient@UnmarshallClientResult response payload :: {content}");
-      return JsonConvert.DeserializeObject<ExchangeRatesDto?>(content);
+      return JsonSerializer.Deserialize<ExchangeRatesDto?>(content, new JsonSerializerOptions
+      {
+        PropertyNameCaseInsensitive = true
+      });
     });
   }
 }

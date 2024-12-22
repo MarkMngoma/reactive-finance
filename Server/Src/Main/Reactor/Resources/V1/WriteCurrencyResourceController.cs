@@ -2,14 +2,15 @@ using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using log4net;
 using Microsoft.AspNetCore.Mvc;
-using server.za.co.finance.handlers;
-using server.za.co.finance.handlers.crosscutting;
-using server.za.co.finance.models.dto;
+using Src.Main.Reactor.Handlers.Business;
+using Src.Main.Reactor.Handlers.CrossCutting;
+using Src.Main.Reactor.Models.Dto;
 
-namespace server.za.co.finance.resources.v1;
+namespace Src.Main.Reactor.Resources.V1;
 
 [ApiController]
 [Route("v1/[controller]")]
+[Produces("application/json")]
 public class WriteCurrencyResourceController : ControllerBase
 {
   private static readonly ILog Logger = LogManager.GetLogger(typeof(WriteCurrencyResourceController));

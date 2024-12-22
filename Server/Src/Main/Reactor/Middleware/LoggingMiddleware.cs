@@ -1,6 +1,6 @@
 using log4net;
 
-namespace server.za.co.finance.middleware;
+namespace Src.Main.Reactor.Middleware;
 
 public class LoggingMiddleware
 {

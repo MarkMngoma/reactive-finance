@@ -1,0 +1,89 @@
+openapi: 3.0.3
+info:
+  title: reactive-finance
+  version: 1.0.0
+  contact: {}
+servers:
+- url: https://localhost:7248
+- url: https://proxy.rest.localhost.com/WSF
+paths:
+  /v1/WriteCurrencyResource:
+    post:
+      tags:
+      - V1
+      summary: /v1/WriteCurrencyResource
+      description: /v1/WriteCurrencyResource
+      operationId: v1Writecurrencyresource
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                currency_code:
+                  type: string
+                  example: CHF
+                currency_flag:
+                  type: string
+                  example: 🇨🇭
+                currency_id:
+                  type: number
+                  example: 756
+                currency_name:
+                  type: string
+                  example: Swiss Franc
+                currency_symbol:
+                  type: string
+                  example: CHF
+            examples:
+              /v1/WriteCurrencyResource:
+                value:
+                  currency_code: CHF
+                  currency_flag: 🇨🇭
+                  currency_id: 756
+                  currency_name: Swiss Franc
+                  currency_symbol: CHF
+      responses:
+        '200':
+          description: ''
+  /v1/QueryCurrencyResource:
+    get:
+      tags:
+      - V1
+      summary: /v1/QueryCurrencyResource
+      description: /v1/QueryCurrencyResource
+      operationId: v1Querycurrencyresource
+      responses:
+        '200':
+          description: ''
+  /v1/QueryCurrencyResource/exchanges:
+    get:
+      tags:
+      - V1
+      summary: /v1/QueryCurrencyResource/exchanges
+      description: /v1/QueryCurrencyResource/exchanges
+      operationId: v1QuerycurrencyresourceExchanges
+      responses:
+        '200':
+          description: ''
+  /v1/QueryCurrencyResource/{currencyCode}:
+    get:
+      tags:
+      - V1
+      summary: /v1/QueryCurrencyResource/:currencyCode
+      description: /v1/QueryCurrencyResource/:currencyCode
+      operationId: v1QuerycurrencyresourceCurrencycode
+      responses:
+        '200':
+          description: ''
+    parameters:
+    - name: currencyCode
+      in: path
+      required: true
+      schema:
+        type: string
+        example: ZAR
+      description: South African Rands
+tags:
+- name: V1
+

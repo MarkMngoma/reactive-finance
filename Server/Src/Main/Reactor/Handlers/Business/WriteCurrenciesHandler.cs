@@ -1,10 +1,11 @@
 using System.Reactive.Linq;
 using log4net;
 using Microsoft.AspNetCore.Mvc;
-using server.za.co.finance.models.dto;
 using SqlKata.Execution;
+using Src.Main.Reactor.Handlers.CrossCutting;
+using Src.Main.Reactor.Models.Dto;
 
-namespace server.za.co.finance.handlers;
+namespace Src.Main.Reactor.Handlers.Business;
 
 public class WriteCurrenciesHandler
 {
@@ -14,11 +15,13 @@ public class WriteCurrenciesHandler
 
   private readonly QueryFactory _commandQueryFactory;
   private readonly QueryCurrenciesHandler _handler;
+  private readonly ContentResultHandler _contentResultHandler;
 
-  public WriteCurrenciesHandler(QueryFactory commandQueryFactory, QueryCurrenciesHandler handler)
+  public WriteCurrenciesHandler(QueryFactory commandQueryFactory, QueryCurrenciesHandler handler, ContentResultHandler contentResultHandler)
   {
     _commandQueryFactory = commandQueryFactory;
     _handler = handler;
+    _contentResultHandler = contentResultHandler;
   }
 
   public IObservable<JsonResult> HandleCurrencyCreation(CurrencyDto currencyDto)
@@ -40,6 +43,6 @@ public class WriteCurrenciesHandler
       .Timeout(TimeSpan.FromMilliseconds(2000))
       .Do(dataResult => Logger.Info($"HomeController@CreateNewCurrency http result :: {dataResult}"))
       .SelectMany(dataResult => _handler.FetchCurrencyUsingCode(currencyDto.CurrencyCode))
-      .Select(dataResult => new JsonResult(dataResult));
+      .SelectMany(httpResult => _contentResultHandler.RenderContentResult(httpResult));
   }
 }
