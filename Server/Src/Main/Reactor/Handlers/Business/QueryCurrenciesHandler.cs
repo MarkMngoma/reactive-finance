@@ -11,7 +11,7 @@ public class QueryCurrenciesHandler
 {
   private static readonly ILog Logger = LogManager.GetLogger(typeof(QueryCurrenciesHandler));
 
-  private readonly string _tableName = "CURRENCIES";
+  private const string TableName = "CURRENCIES";
 
   private readonly FxHttpClient _fxHttpClient;
   private readonly QueryFactory _queryFactory;
@@ -35,7 +35,7 @@ public class QueryCurrenciesHandler
   public IObservable<JsonResult> QueryCollectiveCurrencies()
   {
     Logger.Info("QueryCurrenciesHandler@QueryCollectiveCurrencies initiated...");
-    return Observable.FromAsync(() => _queryFactory.Query(_tableName)
+    return Observable.FromAsync(() => _queryFactory.Query(TableName)
         .Select("ID", "CURRENCY_ID", "CURRENCY_CODE", "CURRENCY_NAME", "CURRENCY_SYMBOL", "CURRENCY_FLAG")
         .GetAsync()
       )
@@ -57,7 +57,7 @@ public class QueryCurrenciesHandler
 
   public IObservable<IEnumerable<dynamic>> FetchCurrencyUsingCode(string currencyCode)
   {
-    return Observable.FromAsync(() => _queryFactory.Query(_tableName)
+    return Observable.FromAsync(() => _queryFactory.Query(TableName)
       .Select("ID", "CURRENCY_ID", "CURRENCY_CODE", "CURRENCY_NAME", "CURRENCY_SYMBOL", "CURRENCY_FLAG")
       .Where("CURRENCY_CODE", currencyCode)
       .Limit(1)

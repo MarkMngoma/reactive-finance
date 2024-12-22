@@ -20,7 +20,7 @@ public class Program
     var builder = WebApplication.CreateBuilder(args);
 
     builder.Configuration.AddJsonFile(
-      $"Src/Main/Infrastructure/Configuration/appsettings.{builder.Environment.EnvironmentName}.json", optional: false,
+      $"Src/Main/Infrastructure/Configuration/application.{builder.Environment.EnvironmentName}.json", optional: false,
       reloadOnChange: true);
 
     ConfigureLogging(builder);

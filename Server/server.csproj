@@ -16,15 +16,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <_ContentIncludedByDefault Remove="Src\Main\Infrastructure\Configuration\log4net.config" />
-      <_ContentIncludedByDefault Remove="Src\Main\Infrastructure\Configuration\appsettings.Development.json" />
-      <_ContentIncludedByDefault Remove="Src\Main\Infrastructure\Configuration\appsettings.json" />
-      <_ContentIncludedByDefault Remove="Main\Infrastructure\Configuration\log4net.config" />
-      <_ContentIncludedByDefault Remove="Main\Infrastructure\Configuration\appsettings.Development.json" />
-      <_ContentIncludedByDefault Remove="Main\Infrastructure\Configuration\appsettings.json" />
-    </ItemGroup>
-
-    <ItemGroup>
       <Folder Include="Src\" />
       <Folder Include="Src\Main\Infrastructure\Cloud\" />
     </ItemGroup>

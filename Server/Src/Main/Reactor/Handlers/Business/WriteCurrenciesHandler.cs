@@ -11,7 +11,7 @@ public class WriteCurrenciesHandler
 {
   private static readonly ILog Logger = LogManager.GetLogger(typeof(QueryCurrenciesHandler));
 
-  private readonly string _tableName = "CURRENCIES";
+  private const string TableName = "CURRENCIES";
 
   private readonly QueryFactory _commandQueryFactory;
   private readonly QueryCurrenciesHandler _handler;
@@ -39,7 +39,7 @@ public class WriteCurrenciesHandler
     };
 
     Logger.Info($"QueryCurrenciesHandler@HandleCurrencyCreation initiated for :: {insertData}");
-    return Observable.FromAsync(() => _commandQueryFactory.Query(_tableName).InsertAsync(insertData))
+    return Observable.FromAsync(() => _commandQueryFactory.Query(TableName).InsertAsync(insertData))
       .Timeout(TimeSpan.FromMilliseconds(2000))
       .Do(dataResult => Logger.Info($"HomeController@CreateNewCurrency http result :: {dataResult}"))
       .SelectMany(dataResult => _handler.FetchCurrencyUsingCode(currencyDto.CurrencyCode))
