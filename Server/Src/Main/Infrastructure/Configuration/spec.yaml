@@ -6,6 +6,9 @@ info:
 servers:
 - url: https://localhost:7248
 - url: https://proxy.rest.localhost.com/WSF
+- url: http://localhost:5000
+- url: http://localhost:8080
+
 paths:
   /v1/WriteCurrencyResource:
     post:

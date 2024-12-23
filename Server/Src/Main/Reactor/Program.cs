@@ -24,9 +24,7 @@ public class Program
     GlobalContext.Properties["NDC"] = requestId;
     var builder = WebApplication.CreateBuilder(args);
 
-    builder.Configuration.AddJsonFile(
-      $"Src/Main/Infrastructure/Configuration/application.{builder.Environment.EnvironmentName}.json", optional: false,
-      reloadOnChange: true);
+    builder.Configuration.AddJsonFile($"Src/Main/Infrastructure/Configuration/application.{builder.Environment.EnvironmentName}.json", optional: false, reloadOnChange: true);
 
     ConfigureLogging(builder);
     ConfigureServices(builder.Services, builder.Configuration);
