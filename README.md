@@ -145,7 +145,7 @@ To get started with **Reactive Finance API**, follow the steps below to set up t
 
 ---
 
-### 🐳 Spinning Up the Container
+### 🐳 Spinning Up the testing Container
 
 The project uses **Docker** for containerization. To run the application in a container, you need to spin up the Docker container using the provided `docker-compose.yml` file.
 
@@ -173,6 +173,31 @@ The project uses **Docker** for containerization. To run the application in a co
 
    This will start all the necessary services defined in the `docker-compose.yml` file, including the Reactive Finance API.
 
+---
+
+### 🐳 Spinning Up the Cloud Container
+
+1. **Spinning up Cloud Ready Container:**
+
+    Execute this command to create an image that'll be provisioned on k8s
+
+    ```bash
+    docker build --platform linux/amd64 -t ${containerRegistry}/${containerRepository}/reactive-finance:${version} -f ./Server/Src/Main/Infrastructure/Cloud/Dockerfile .
+    ```
+
+2. **Pushing and versioning via container registry:**
+
+   Push the image to a secure container registry
+    ```bash
+    docker push ${containerRegistry}/${containerRepository}/reactive-finance:${version}
+    ```
+
+3. **Spinning up Cloud Ready Container:**
+
+   Execute this command to create an image that'll be provisioned on k8s
+   ```bash
+    kubectl apply -f ./Server/Src/Main/Infrastructure/Cloud/deployment.yml
+   ```
 ---
 
 ### 🔬 Running Integration Tests
