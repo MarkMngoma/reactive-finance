@@ -1,6 +1,7 @@
 using System.Net.Mime;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using log4net;
 using Microsoft.AspNetCore.HttpLogging;
 using MySql.Data.MySqlClient;
 using SqlKata.Compilers;
@@ -15,8 +16,12 @@ namespace Src.Main.Reactor;
 
 public class Program
 {
+  private static readonly ILog Logger = LogManager.GetLogger(typeof(Program));
+
   public static void Main(string[] args)
   {
+    var requestId = Guid.NewGuid().ToString();
+    GlobalContext.Properties["NDC"] = requestId;
     var builder = WebApplication.CreateBuilder(args);
 
     builder.Configuration.AddJsonFile(
@@ -61,7 +66,11 @@ public class Program
       var connection = new MySqlConnection(connectionString);
 
       var compiler = new MySqlCompiler();
-      return new QueryFactory(connection, compiler);
+      var queryFactory = new QueryFactory(connection, compiler);
+      queryFactory.Logger = compiled => {
+        Logger.Debug($"Executing SQL query ===> : {compiled}");
+      };
+      return queryFactory;
     });
 
     services.AddControllers()

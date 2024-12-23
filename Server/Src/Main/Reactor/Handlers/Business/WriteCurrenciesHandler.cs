@@ -41,7 +41,7 @@ public class WriteCurrenciesHandler
     Logger.Info($"QueryCurrenciesHandler@HandleCurrencyCreation initiated for :: {insertData}");
     return Observable.FromAsync(() => _commandQueryFactory.Query(TableName).InsertAsync(insertData))
       .Timeout(TimeSpan.FromMilliseconds(2000))
-      .Do(dataResult => Logger.Info($"HomeController@CreateNewCurrency http result :: {dataResult}"))
+      .Do(dataResult => Logger.Debug($"HomeController@CreateNewCurrency http result :: {dataResult}"))
       .SelectMany(dataResult => _handler.FetchCurrencyUsingCode(currencyDto.CurrencyCode))
       .SelectMany(httpResult => _contentResultHandler.RenderContentResult(httpResult));
   }

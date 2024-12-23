@@ -11,7 +11,7 @@ public class ThrowableHandler
 
   public IObservable<IActionResult> Handle(Exception exception, int statusCode)
   {
-    Logger.Info($"ThrowableHandler@HandleThrowable throwable result :: {exception}");
+    Logger.Error($"ThrowableHandler@HandleThrowable throwable result :: {exception}");
     return Observable.Return(new StatusCodeResult(statusCode));
   }
 }
