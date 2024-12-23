@@ -28,7 +28,7 @@ public class QueryCurrenciesHandler
   {
     Logger.Info("QueryCurrenciesHandler@QueryPartyExchangeRates initiated...");
     return _fxHttpClient.QueryExternalPartyExchangeRates()
-      .Do(dto => Logger.Info($"QueryCurrenciesHandler@QueryPartyExchangeRates preparing response :: {dto}"))
+      .Do(dto => Logger.Debug($"QueryCurrenciesHandler@QueryPartyExchangeRates preparing response :: {dto}"))
       .SelectMany(httpResult => _contentResultHandler.RenderContentResult(httpResult));
   }
 
@@ -41,7 +41,7 @@ public class QueryCurrenciesHandler
       )
       .Retry(3)
       .Timeout(TimeSpan.FromMilliseconds(2000))
-      .Do(dataResult => Logger.Info($"QueryCurrenciesHandler@QueryCollectiveCurrencies domain result :: {dataResult.ToString()}"))
+      .Do(dataResult => Logger.Debug($"QueryCurrenciesHandler@QueryCollectiveCurrencies domain result :: {dataResult.ToString()}"))
       .SelectMany(httpResult => _contentResultHandler.RenderContentResult(httpResult));
   }
 
@@ -51,7 +51,7 @@ public class QueryCurrenciesHandler
     return FetchCurrencyUsingCode(currencyCode)
       .Retry(3)
       .Timeout(TimeSpan.FromMilliseconds(2000))
-      .Do(dataResult => Logger.Info($"QueryCurrenciesHandler@QueryCollectiveCurrencies domain result :: {dataResult.ToString()}"))
+      .Do(dataResult => Logger.Debug($"QueryCurrenciesHandler@QueryCollectiveCurrencies domain result :: {dataResult.ToString()}"))
       .SelectMany(httpResult => _contentResultHandler.RenderContentResult(httpResult));
   }
 
