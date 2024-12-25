@@ -209,7 +209,7 @@ The project includes integration tests to ensure that everything is functioning 
    To run the integration tests, use the following command:
 
    ```bash
-   dotnet test
+   dotnet test --logger "console;verbosity=detailed"
    ```
 
    This will execute all the integration tests and display the results in the terminal.

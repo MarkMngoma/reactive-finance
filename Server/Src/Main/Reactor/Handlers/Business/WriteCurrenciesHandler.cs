@@ -7,7 +7,7 @@ using Src.Main.Reactor.Models.Dto;
 
 namespace Src.Main.Reactor.Handlers.Business;
 
-public class WriteCurrenciesHandler
+public class WriteCurrenciesHandler : ICommandHandler<CurrencyDto, JsonResult>
 {
   private static readonly ILog Logger = LogManager.GetLogger(typeof(QueryCurrenciesHandler));
 
@@ -17,32 +17,32 @@ public class WriteCurrenciesHandler
   private readonly QueryCurrenciesHandler _handler;
   private readonly ContentResultHandler _contentResultHandler;
 
-  public WriteCurrenciesHandler(QueryFactory commandQueryFactory, QueryCurrenciesHandler handler, ContentResultHandler contentResultHandler)
+  public WriteCurrenciesHandler(QueryFactory commandQueryFactory, QueryCurrenciesHandler handler,
+    ContentResultHandler contentResultHandler)
   {
     _commandQueryFactory = commandQueryFactory;
     _handler = handler;
     _contentResultHandler = contentResultHandler;
   }
 
-  public IObservable<JsonResult> HandleCurrencyCreation(CurrencyDto currencyDto)
+  public IObservable<JsonResult> Handle(CurrencyDto request)
   {
-    var insertData = new
-    {
-      CURRENCY_ID = currencyDto.CurrencyId,
-      CURRENCY_CODE = currencyDto.CurrencyCode,
-      CURRENCY_SYMBOL = currencyDto.CurrencySymbol,
-      CURRENCY_FLAG = currencyDto.CurrencyFlag,
-      CURRENCY_NAME = currencyDto.CurrencyName,
-      ARCHIVED = 0,
-      CREATED_AT = DateTimeOffset.Now,
-      CREATED_BY = 1
-    };
-
-    Logger.Info($"QueryCurrenciesHandler@HandleCurrencyCreation initiated for :: {insertData}");
-    return Observable.FromAsync(() => _commandQueryFactory.Query(TableName).InsertAsync(insertData))
+    return Observable.FromAsync(() => _commandQueryFactory.Query(TableName).InsertAsync(new
+        {
+          CURRENCY_ID = request.CurrencyId,
+          CURRENCY_CODE = request.CurrencyCode,
+          CURRENCY_SYMBOL = request.CurrencySymbol,
+          CURRENCY_FLAG = request.CurrencyFlag,
+          CURRENCY_NAME = request.CurrencyName,
+          ARCHIVED = 0,
+          CREATED_AT = DateTimeOffset.Now,
+          CREATED_BY = 1
+        })
+      )
+      .Do(dataResult => Logger.Debug($"WriteCurrenciesHandler@Handle domain result :: {dataResult}"))
+      .Select(_ => request)
       .Timeout(TimeSpan.FromMilliseconds(2000))
-      .Do(dataResult => Logger.Debug($"HomeController@CreateNewCurrency http result :: {dataResult}"))
-      .SelectMany(dataResult => _handler.FetchCurrencyUsingCode(currencyDto.CurrencyCode))
+      .SelectMany(dataResult => _handler.FetchCurrencyUsingCode(request.CurrencyCode))
       .SelectMany(httpResult => _contentResultHandler.RenderContentResult(httpResult));
   }
 }

@@ -47,11 +47,11 @@ public class QueryCurrenciesHandler
 
   public IObservable<JsonResult> QueryCurrencyUsingCurrencyCode(string currencyCode)
   {
-    Logger.Info($"QueryCurrenciesHandler@QueryCollectiveCurrencies initiated for :: {currencyCode}");
+    Logger.Info($"QueryCurrenciesHandler@QueryCurrencyUsingCurrencyCode initiated for :: {currencyCode}");
     return FetchCurrencyUsingCode(currencyCode)
       .Retry(3)
       .Timeout(TimeSpan.FromMilliseconds(2000))
-      .Do(dataResult => Logger.Debug($"QueryCurrenciesHandler@QueryCollectiveCurrencies domain result :: {dataResult.ToString()}"))
+      .Do(dataResult => Logger.Debug($"QueryCurrenciesHandler@QueryCurrencyUsingCurrencyCode domain result :: {dataResult.ToString()}"))
       .SelectMany(httpResult => _contentResultHandler.RenderContentResult(httpResult));
   }
 

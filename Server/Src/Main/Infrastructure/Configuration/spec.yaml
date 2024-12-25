@@ -49,6 +49,507 @@ paths:
       responses:
         '200':
           description: ''
+  /v1/WriteCurrencyResource/Batch:
+    post:
+      tags:
+        - V1
+      summary: /v1/WriteCurrencyResource/Batch
+      description: /v1/WriteCurrencyResource/Batch
+      operationId: v1Writebatchcurrencyresource
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                batch_currencies:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      currency_code:
+                        type: string
+                        example: XOF
+                      currency_flag:
+                        type: string
+                        example: 🇸🇳
+                      currency_id:
+                        type: number
+                        example: 952
+                      currency_name:
+                        type: string
+                        example: CFA Franc BCEAO (West African CFA franc)
+                      currency_symbol:
+                        type: string
+                        example: CFA
+                  example:
+                    - currency_code: XOF
+                      currency_flag: 🇸🇳
+                      currency_id: 952
+                      currency_name: CFA Franc BCEAO (West African CFA franc)
+                      currency_symbol: CFA
+                    - currency_code: XAF
+                      currency_flag: 🇨🇲
+                      currency_id: 950
+                      currency_name: CFA Franc BEAC (Central African CFA franc)
+                      currency_symbol: FCFA
+                    - currency_code: ZAR
+                      currency_flag: 🇿🇦
+                      currency_id: 710
+                      currency_name: South African Rand
+                      currency_symbol: R
+                    - currency_code: NGN
+                      currency_flag: 🇳🇬
+                      currency_id: 566
+                      currency_name: Nigerian Naira
+                      currency_symbol: ₦
+                    - currency_code: KES
+                      currency_flag: 🇰🇪
+                      currency_id: 404
+                      currency_name: Kenyan Shilling
+                      currency_symbol: KSh
+                    - currency_code: UGX
+                      currency_flag: 🇺🇬
+                      currency_id: 800
+                      currency_name: Ugandan Shilling
+                      currency_symbol: USh
+                    - currency_code: GHS
+                      currency_flag: 🇬🇭
+                      currency_id: 936
+                      currency_name: Ghanaian Cedi
+                      currency_symbol: ₵
+                    - currency_code: TZS
+                      currency_flag: 🇹🇿
+                      currency_id: 834
+                      currency_name: Tanzanian Shilling
+                      currency_symbol: TSh
+                    - currency_code: ZMW
+                      currency_flag: 🇿🇲
+                      currency_id: 967
+                      currency_name: Zambian Kwacha
+                      currency_symbol: ZK
+                    - currency_code: BWP
+                      currency_flag: 🇧🇼
+                      currency_id: 58
+                      currency_name: Botswana Pula
+                      currency_symbol: P
+                    - currency_code: SCR
+                      currency_flag: 🇸🇨
+                      currency_id: 690
+                      currency_name: Seychellois Rupee
+                      currency_symbol: ₨
+                    - currency_code: NAD
+                      currency_flag: 🇳🇦
+                      currency_id: 516
+                      currency_name: Namibian Dollar
+                      currency_symbol: $
+                    - currency_code: MUR
+                      currency_flag: 🇲🇺
+                      currency_id: 480
+                      currency_name: Mauritian Rupee
+                      currency_symbol: ₨
+                    - currency_code: MWK
+                      currency_flag: 🇲🇼
+                      currency_id: 454
+                      currency_name: Malawian Kwacha
+                      currency_symbol: MK
+                    - currency_code: GMD
+                      currency_flag: 🇬🇲
+                      currency_id: 270
+                      currency_name: Gambian Dalasi
+                      currency_symbol: D
+                    - currency_code: SZL
+                      currency_flag: 🇸🇿
+                      currency_id: 748
+                      currency_name: Swazi Lilangeni (Swaziland)
+                      currency_symbol: E
+                    - currency_code: RWF
+                      currency_flag: 🇷🇼
+                      currency_id: 646
+                      currency_name: Rwandan Franc
+                      currency_symbol: RF
+                    - currency_code: LSL
+                      currency_flag: 🇱🇸
+                      currency_id: 426
+                      currency_name: Lesotho Loti
+                      currency_symbol: L
+                    - currency_code: SOS
+                      currency_flag: 🇸🇴
+                      currency_id: 706
+                      currency_name: Somali Shilling
+                      currency_symbol: Sh
+                    - currency_code: SLL
+                      currency_flag: 🇸🇱
+                      currency_id: 694
+                      currency_name: Sierra Leonean Leone
+                      currency_symbol: Le
+                    - currency_code: MZN
+                      currency_flag: 🇲🇿
+                      currency_id: 943
+                      currency_name: Mozambican Metical
+                      currency_symbol: MT
+                    - currency_code: CVE
+                      currency_flag: 🇨🇻
+                      currency_id: 132
+                      currency_name: Cape Verdean Escudo
+                      currency_symbol: $
+                    - currency_code: BIF
+                      currency_flag: 🇧🇮
+                      currency_id: 108
+                      currency_name: Burundian Franc
+                      currency_symbol: FBu
+                    - currency_code: DJF
+                      currency_flag: 🇩🇯
+                      currency_id: 262
+                      currency_name: Djiboutian Franc
+                      currency_symbol: Fdj
+                    - currency_code: ERN
+                      currency_flag: 🇪🇷
+                      currency_id: 232
+                      currency_name: Eritrean Nakfa
+                      currency_symbol: Nfk
+                    - currency_code: ETB
+                      currency_flag: 🇪🇹
+                      currency_id: 230
+                      currency_name: Ethiopian Birr
+                      currency_symbol: Br
+                    - currency_code: KMF
+                      currency_flag: 🇰🇲
+                      currency_id: 174
+                      currency_name: Comorian Franc
+                      currency_symbol: CF
+                    - currency_code: AOA
+                      currency_flag: 🇦🇴
+                      currency_id: 973
+                      currency_name: Angolan Kwanza
+                      currency_symbol: Kz
+                    - currency_code: STD
+                      currency_flag: 🇸🇹
+                      currency_id: 678
+                      currency_name: São Tomé and Príncipe Dobra
+                      currency_symbol: Db
+                    - currency_code: SDG
+                      currency_flag: 🇸🇩
+                      currency_id: 938
+                      currency_name: Sudanese Pound
+                      currency_symbol: £SD
+                    - currency_code: ZWL
+                      currency_flag: 🇿🇼
+                      currency_id: 932
+                      currency_name: Zimbabwean Dollar
+                      currency_symbol: Z$
+                    - currency_code: USD
+                      currency_flag: 🇺🇸
+                      currency_id: 840
+                      currency_name: United States Dollar
+                      currency_symbol: $
+                    - currency_code: GBP
+                      currency_flag: 🇬🇧
+                      currency_id: 826
+                      currency_name: British Pound Sterling
+                      currency_symbol: £
+                    - currency_code: AED
+                      currency_flag: 🇦🇪
+                      currency_id: 784
+                      currency_name: United Arab Emirates Dirham
+                      currency_symbol: د.إ
+                    - currency_code: SAR
+                      currency_flag: 🇸🇦
+                      currency_id: 682
+                      currency_name: Saudi Riyal
+                      currency_symbol: ر.س
+                    - currency_code: KWD
+                      currency_flag: 🇰🇼
+                      currency_id: 414
+                      currency_name: Kuwaiti Dinar
+                      currency_symbol: د.ك
+                    - currency_code: QAR
+                      currency_flag: 🇶🇦
+                      currency_id: 634
+                      currency_name: Qatari Riyal
+                      currency_symbol: ر.ق
+                    - currency_code: OMR
+                      currency_flag: 🇴🇲
+                      currency_id: 512
+                      currency_name: Omani Rial
+                      currency_symbol: ر.ع
+                    - currency_code: BHD
+                      currency_flag: 🇧🇭
+                      currency_id: 48
+                      currency_name: Bahraini Dinar
+                      currency_symbol: ب.د
+                    - currency_code: ILS
+                      currency_flag: 🇮🇱
+                      currency_id: 376
+                      currency_name: Israeli New Shekel
+                      currency_symbol: ₪
+                    - currency_code: IRR
+                      currency_flag: 🇮🇷
+                      currency_id: 364
+                      currency_name: Iranian Rial
+                      currency_symbol: ﷼
+                    - currency_code: TRY
+                      currency_flag: 🇹🇷
+                      currency_id: 949
+                      currency_name: Turkish Lira
+                      currency_symbol: ₺
+                    - currency_code: YER
+                      currency_flag: 🇾🇪
+                      currency_id: 886
+                      currency_name: Yemeni Rial
+                      currency_symbol: ﷼
+                    - currency_code: LBP
+                      currency_flag: 🇱🇧
+                      currency_id: 422
+                      currency_name: Lebanese Pound
+                      currency_symbol: ل.ل
+                    - currency_code: JOD
+                      currency_flag: 🇯🇴
+                      currency_id: 400
+                      currency_name: Jordanian Dinar
+                      currency_symbol: د.ا
+                    - currency_code: SYP
+                      currency_flag: 🇸🇾
+                      currency_id: 760
+                      currency_name: Syrian Pound
+                      currency_symbol: £S
+            examples:
+              /v1/WriteCurrencyResource/Batch:
+                value:
+                  batchCurrencies:
+                    - currency_code: XOF
+                      currency_flag: 🇸🇳
+                      currency_id: 952
+                      currency_name: CFA Franc BCEAO (West African CFA franc)
+                      currency_symbol: CFA
+                    - currency_code: XAF
+                      currency_flag: 🇨🇲
+                      currency_id: 950
+                      currency_name: CFA Franc BEAC (Central African CFA franc)
+                      currency_symbol: FCFA
+                    - currency_code: ZAR
+                      currency_flag: 🇿🇦
+                      currency_id: 710
+                      currency_name: South African Rand
+                      currency_symbol: R
+                    - currency_code: NGN
+                      currency_flag: 🇳🇬
+                      currency_id: 566
+                      currency_name: Nigerian Naira
+                      currency_symbol: ₦
+                    - currency_code: KES
+                      currency_flag: 🇰🇪
+                      currency_id: 404
+                      currency_name: Kenyan Shilling
+                      currency_symbol: KSh
+                    - currency_code: UGX
+                      currency_flag: 🇺🇬
+                      currency_id: 800
+                      currency_name: Ugandan Shilling
+                      currency_symbol: USh
+                    - currency_code: GHS
+                      currency_flag: 🇬🇭
+                      currency_id: 936
+                      currency_name: Ghanaian Cedi
+                      currency_symbol: ₵
+                    - currency_code: TZS
+                      currency_flag: 🇹🇿
+                      currency_id: 834
+                      currency_name: Tanzanian Shilling
+                      currency_symbol: TSh
+                    - currency_code: ZMW
+                      currency_flag: 🇿🇲
+                      currency_id: 967
+                      currency_name: Zambian Kwacha
+                      currency_symbol: ZK
+                    - currency_code: BWP
+                      currency_flag: 🇧🇼
+                      currency_id: 58
+                      currency_name: Botswana Pula
+                      currency_symbol: P
+                    - currency_code: SCR
+                      currency_flag: 🇸🇨
+                      currency_id: 690
+                      currency_name: Seychellois Rupee
+                      currency_symbol: ₨
+                    - currency_code: NAD
+                      currency_flag: 🇳🇦
+                      currency_id: 516
+                      currency_name: Namibian Dollar
+                      currency_symbol: $
+                    - currency_code: MUR
+                      currency_flag: 🇲🇺
+                      currency_id: 480
+                      currency_name: Mauritian Rupee
+                      currency_symbol: ₨
+                    - currency_code: MWK
+                      currency_flag: 🇲🇼
+                      currency_id: 454
+                      currency_name: Malawian Kwacha
+                      currency_symbol: MK
+                    - currency_code: GMD
+                      currency_flag: 🇬🇲
+                      currency_id: 270
+                      currency_name: Gambian Dalasi
+                      currency_symbol: D
+                    - currency_code: SZL
+                      currency_flag: 🇸🇿
+                      currency_id: 748
+                      currency_name: Swazi Lilangeni (Swaziland)
+                      currency_symbol: E
+                    - currency_code: RWF
+                      currency_flag: 🇷🇼
+                      currency_id: 646
+                      currency_name: Rwandan Franc
+                      currency_symbol: RF
+                    - currency_code: LSL
+                      currency_flag: 🇱🇸
+                      currency_id: 426
+                      currency_name: Lesotho Loti
+                      currency_symbol: L
+                    - currency_code: SOS
+                      currency_flag: 🇸🇴
+                      currency_id: 706
+                      currency_name: Somali Shilling
+                      currency_symbol: Sh
+                    - currency_code: SLL
+                      currency_flag: 🇸🇱
+                      currency_id: 694
+                      currency_name: Sierra Leonean Leone
+                      currency_symbol: Le
+                    - currency_code: MZN
+                      currency_flag: 🇲🇿
+                      currency_id: 943
+                      currency_name: Mozambican Metical
+                      currency_symbol: MT
+                    - currency_code: CVE
+                      currency_flag: 🇨🇻
+                      currency_id: 132
+                      currency_name: Cape Verdean Escudo
+                      currency_symbol: $
+                    - currency_code: BIF
+                      currency_flag: 🇧🇮
+                      currency_id: 108
+                      currency_name: Burundian Franc
+                      currency_symbol: FBu
+                    - currency_code: DJF
+                      currency_flag: 🇩🇯
+                      currency_id: 262
+                      currency_name: Djiboutian Franc
+                      currency_symbol: Fdj
+                    - currency_code: ERN
+                      currency_flag: 🇪🇷
+                      currency_id: 232
+                      currency_name: Eritrean Nakfa
+                      currency_symbol: Nfk
+                    - currency_code: ETB
+                      currency_flag: 🇪🇹
+                      currency_id: 230
+                      currency_name: Ethiopian Birr
+                      currency_symbol: Br
+                    - currency_code: KMF
+                      currency_flag: 🇰🇲
+                      currency_id: 174
+                      currency_name: Comorian Franc
+                      currency_symbol: CF
+                    - currency_code: AOA
+                      currency_flag: 🇦🇴
+                      currency_id: 973
+                      currency_name: Angolan Kwanza
+                      currency_symbol: Kz
+                    - currency_code: STD
+                      currency_flag: 🇸🇹
+                      currency_id: 678
+                      currency_name: São Tomé and Príncipe Dobra
+                      currency_symbol: Db
+                    - currency_code: SDG
+                      currency_flag: 🇸🇩
+                      currency_id: 938
+                      currency_name: Sudanese Pound
+                      currency_symbol: £SD
+                    - currency_code: ZWL
+                      currency_flag: 🇿🇼
+                      currency_id: 932
+                      currency_name: Zimbabwean Dollar
+                      currency_symbol: Z$
+                    - currency_code: USD
+                      currency_flag: 🇺🇸
+                      currency_id: 840
+                      currency_name: United States Dollar
+                      currency_symbol: $
+                    - currency_code: GBP
+                      currency_flag: 🇬🇧
+                      currency_id: 826
+                      currency_name: British Pound Sterling
+                      currency_symbol: £
+                    - currency_code: AED
+                      currency_flag: 🇦🇪
+                      currency_id: 784
+                      currency_name: United Arab Emirates Dirham
+                      currency_symbol: د.إ
+                    - currency_code: SAR
+                      currency_flag: 🇸🇦
+                      currency_id: 682
+                      currency_name: Saudi Riyal
+                      currency_symbol: ر.س
+                    - currency_code: KWD
+                      currency_flag: 🇰🇼
+                      currency_id: 414
+                      currency_name: Kuwaiti Dinar
+                      currency_symbol: د.ك
+                    - currency_code: QAR
+                      currency_flag: 🇶🇦
+                      currency_id: 634
+                      currency_name: Qatari Riyal
+                      currency_symbol: ر.ق
+                    - currency_code: OMR
+                      currency_flag: 🇴🇲
+                      currency_id: 512
+                      currency_name: Omani Rial
+                      currency_symbol: ر.ع
+                    - currency_code: BHD
+                      currency_flag: 🇧🇭
+                      currency_id: 48
+                      currency_name: Bahraini Dinar
+                      currency_symbol: ب.د
+                    - currency_code: ILS
+                      currency_flag: 🇮🇱
+                      currency_id: 376
+                      currency_name: Israeli New Shekel
+                      currency_symbol: ₪
+                    - currency_code: IRR
+                      currency_flag: 🇮🇷
+                      currency_id: 364
+                      currency_name: Iranian Rial
+                      currency_symbol: ﷼
+                    - currency_code: TRY
+                      currency_flag: 🇹🇷
+                      currency_id: 949
+                      currency_name: Turkish Lira
+                      currency_symbol: ₺
+                    - currency_code: YER
+                      currency_flag: 🇾🇪
+                      currency_id: 886
+                      currency_name: Yemeni Rial
+                      currency_symbol: ﷼
+                    - currency_code: LBP
+                      currency_flag: 🇱🇧
+                      currency_id: 422
+                      currency_name: Lebanese Pound
+                      currency_symbol: ل.ل
+                    - currency_code: JOD
+                      currency_flag: 🇯🇴
+                      currency_id: 400
+                      currency_name: Jordanian Dinar
+                      currency_symbol: د.ا
+                    - currency_code: SYP
+                      currency_flag: 🇸🇾
+                      currency_id: 760
+                      currency_name: Syrian Pound
+                      currency_symbol: £S
+      responses:
+        '200':
+          description: ''
   /v1/QueryCurrencyResource:
     get:
       tags:
@@ -69,18 +570,18 @@ paths:
       responses:
         '200':
           description: ''
-  /v1/QueryCurrencyResource/{currencyCode}:
+  /v1/QueryCurrencyResource/{currency_code}:
     get:
       tags:
       - V1
-      summary: /v1/QueryCurrencyResource/:currencyCode
-      description: /v1/QueryCurrencyResource/:currencyCode
-      operationId: v1QuerycurrencyresourceCurrencycode
+      summary: /v1/QueryCurrencyResource/:currency_code
+      description: /v1/QueryCurrencyResource/:currency_code
+      operationId: v1Querycurrencyresourcecurrency_code
       responses:
         '200':
           description: ''
     parameters:
-    - name: currencyCode
+    - name: currency_code
       in: path
       required: true
       schema:
