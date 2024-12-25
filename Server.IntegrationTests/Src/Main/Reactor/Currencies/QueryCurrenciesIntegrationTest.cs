@@ -1,8 +1,14 @@
+using System;
 using System.Net;
 using System.Net.Http;
+using System.Reactive.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Dapper;
+using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Extensions.Configuration;
+using MySql.Data.MySqlClient;
 using Src.Main.Reactor;
 using Src.Main.Reactor.Models.Dto;
 using Xunit;
@@ -10,13 +16,19 @@ using JsonSerializerOptions = System.Text.Json.JsonSerializerOptions;
 
 namespace Server.IntegrationTests.Main.Reactor.Currencies;
 
-public class QueryCurrenciesIntegrationTest : IClassFixture<WebApplicationFactory<Program>>
+public class QueryCurrenciesIntegrationTest : IClassFixture<WebApplicationFactory<Program>>, IDisposable
 {
-
+  private readonly string _connectionString;
   private readonly HttpClient _testHttpClient;
 
   public QueryCurrenciesIntegrationTest(WebApplicationFactory<Program> factory)
   {
+    var configuration = new ConfigurationBuilder()
+      .SetBasePath(AppContext.BaseDirectory)
+      .AddJsonFile("Src/Main/Infrastructure/Configuration/application.Development.json", optional: false, reloadOnChange: true)
+      .Build();
+
+    _connectionString = configuration.GetConnectionString("FinanceDatabase");
     _testHttpClient = factory.CreateClient();
   }
 
@@ -51,8 +63,15 @@ public class QueryCurrenciesIntegrationTest : IClassFixture<WebApplicationFactor
       PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
     });
 
-    Assert.Equal(expectedCurrencyCode, responsePayload[0].CurrencyCode);
+    responsePayload[0].CurrencyCode.Should().Match(expectedCurrencyCode);
   }
 
-
+  public void Dispose()
+  {
+    var connection = new MySqlConnection(_connectionString);
+    Observable.FromAsync(() => connection.OpenAsync())
+      .SelectMany(_ => Observable.FromAsync(() => connection.ExecuteAsync("DELETE FROM dboFinance.CURRENCIES WHERE CURRENCY_ID=756;")))
+      .SelectMany(_ => Observable.FromAsync(() => connection.ExecuteAsync("CREATE DATABASE IF NOT EXISTS dboFinance;")))
+      .Wait();
+  }
 }

@@ -8,6 +8,5 @@ services:
       MARIADB_PASSWORD: mdn9VBYldGcmLo01lt5Y3lpQqeE=
     volumes:
       - ~/.reactive-finance-data:/var/lib/mariadb
-      - ./initTablesWithData.sql:/docker-entrypoint-initdb.d/initTablesWithData.sql
     ports:
       - "60339:3306"

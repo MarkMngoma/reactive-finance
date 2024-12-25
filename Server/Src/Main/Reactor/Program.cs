@@ -1,12 +1,15 @@
 using System.Net.Mime;
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using DbUp;
 using log4net;
 using Microsoft.AspNetCore.HttpLogging;
 using MySql.Data.MySqlClient;
 using SqlKata.Compilers;
 using SqlKata.Execution;
 using Src.Main.Reactor.Clients;
+using Src.Main.Reactor.Configuration;
 using Src.Main.Reactor.Configuration.Extensions;
 using Src.Main.Reactor.Handlers.Business;
 using Src.Main.Reactor.Handlers.CrossCutting;
@@ -58,9 +61,10 @@ public class Program
       logging.CombineLogs = true;
     });
 
+    var connectionString = configuration.GetConnectionString("FinanceDatabase");
+    ApplyDatabaseMigrations(connectionString);
     services.AddTransient<QueryFactory>(e =>
     {
-      var connectionString = configuration.GetConnectionString("FinanceDatabase");
       var connection = new MySqlConnection(connectionString);
 
       var compiler = new MySqlCompiler();
@@ -86,7 +90,12 @@ public class Program
   {
     services.AddSingleton<ContentResultHandler>();
     services.AddSingleton<ThrowableHandler>();
+
+    // Command Handlers
     services.AddSingleton<WriteCurrenciesHandler>();
+    services.AddSingleton<WriteBatchCurrenciesHandler>();
+
+    // Queryable Handlers
     services.AddSingleton<QueryCurrenciesHandler>();
   }
 
@@ -108,5 +117,15 @@ public class Program
     app.UseHttpsRedirection();
     app.UseRouting();
     app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id?}");
+  }
+
+  private static void ApplyDatabaseMigrations(string? connectionString)
+  {
+    DeployChanges.To.MySqlDatabase(connectionString)
+      .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly())
+      .LogTo(new Log4NetDbUpgradeLog(Logger))
+      .LogScriptOutput()
+      .Build()
+      .PerformUpgrade();
   }
 }
