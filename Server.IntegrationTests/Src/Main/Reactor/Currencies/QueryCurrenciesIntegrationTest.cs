@@ -63,6 +63,7 @@ public class QueryCurrenciesIntegrationTest : IClassFixture<WebApplicationFactor
       PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
     });
 
+    Assert.True(responsePayload.Length > 0);
     responsePayload[0].CurrencyCode.Should().Match(expectedCurrencyCode);
   }
 
