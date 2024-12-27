@@ -2,6 +2,7 @@ using System.Reactive.Linq;
 using log4net;
 using Microsoft.AspNetCore.Mvc;
 using SqlKata.Execution;
+using Src.Main.Infrastructure.Builders;
 using Src.Main.Reactor.Handlers.CrossCutting;
 using Src.Main.Reactor.Models.Dto;
 
@@ -27,22 +28,11 @@ public class WriteCurrenciesHandler : ICommandHandler<CurrencyDto, JsonResult>
 
   public IObservable<JsonResult> Handle(CurrencyDto request)
   {
-    return Observable.FromAsync(() => _commandQueryFactory.Query(TableName).InsertAsync(new
-        {
-          CURRENCY_ID = request.CurrencyId,
-          CURRENCY_CODE = request.CurrencyCode,
-          CURRENCY_SYMBOL = request.CurrencySymbol,
-          CURRENCY_FLAG = request.CurrencyFlag,
-          CURRENCY_NAME = request.CurrencyName,
-          ARCHIVED = 0,
-          CREATED_AT = DateTimeOffset.Now,
-          CREATED_BY = 1
-        })
-      )
+    return Observable.FromAsync(() => _commandQueryFactory.Query(TableName).InsertAsync( new InsertCurrencyRecordBuilder(request).Build()))
       .Do(dataResult => Logger.Debug($"WriteCurrenciesHandler@Handle domain result :: {dataResult}"))
       .Select(_ => request)
       .Timeout(TimeSpan.FromMilliseconds(2000))
-      .SelectMany(dataResult => _handler.FetchCurrencyUsingCode(request.CurrencyCode))
+      .SelectMany(_ => _handler.FetchCurrencyUsingCode(request.CurrencyCode))
       .SelectMany(httpResult => _contentResultHandler.RenderContentResult(httpResult));
   }
 }
