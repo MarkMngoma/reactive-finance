@@ -25,8 +25,10 @@ jobs:
         dotnet-version: 8.0.x
 
     - name: Test
-      run: dotnet test --logger "console;verbosity=detailed"
-
+      run: | 
+        ls -R
+        dotnet test --logger "console;verbosity=detailed"
+      
     - name: Stop Docker Compose services
       run: |
         docker-compose -f ./Server.IntegrationTests/Src/Main/Infrastructure/TestContainers/docker-compose.yml down
