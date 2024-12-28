@@ -18,10 +18,6 @@ jobs:
       with:
         version: latest
         compose-file: "./Server.IntegrationTests/Src/Main/Infrastructure/TestContainers/docker-compose.yml"
-        
-    - name: Start MariaDB using Docker Compose
-      run: |
-        docker-compose -f ./Server.IntegrationTests/Src/Main/Infrastructure/TestContainers/docker-compose.yml up -d
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
@@ -35,7 +31,7 @@ jobs:
       run: dotnet build --no-restore
 
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test --logger "console;verbosity=detailed"
 
     - name: Stop Docker Compose services
       run: |
