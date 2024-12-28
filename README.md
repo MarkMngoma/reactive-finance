@@ -1,3 +1,7 @@
+Here is an updated version of your README, including instructions on how to run the scripts on macOS, Linux, and Windows, provide permissions, and utilize Git commands such as `git submodule init` and `git submodule update --recursive`.
+
+---
+
 # 🏦 **Reactive Finance API** 🚀
 
 Welcome to the **Reactive Finance** API! This is a powerful API for managing and querying currency resources with cutting-edge features built using **.NET Core 8**.
@@ -125,7 +129,16 @@ To get started with **Reactive Finance API**, follow the steps below to set up t
    cd reactive-finance
    ```
 
-2. **Restore Dependencies:**
+2. **Initialize and Update Git Submodules:**
+
+   This project includes Git submodules that you need to initialize and update. Run the following commands:
+
+   ```bash
+   git submodule init
+   git submodule update --recursive
+   ```
+
+3. **Restore Dependencies:**
 
    Make sure to restore all necessary NuGet packages:
 
@@ -133,7 +146,7 @@ To get started with **Reactive Finance API**, follow the steps below to set up t
    dotnet restore
    ```
 
-3. **Run the API:**
+4. **Run the API:**
 
    Start the API locally:
 
@@ -145,7 +158,7 @@ To get started with **Reactive Finance API**, follow the steps below to set up t
 
 ---
 
-### 🐳 Spinning Up the testing Container
+### 🐳 Spinning Up the Testing Container
 
 The project uses **Docker** for containerization. To run the application in a container, you need to spin up the Docker container using the provided `docker-compose.yml` file.
 
@@ -177,27 +190,30 @@ The project uses **Docker** for containerization. To run the application in a co
 
 ### 🐳 Spinning Up the Cloud Container
 
-1. **Spinning up Cloud Ready Container:**
+1. **Spinning Up Cloud Ready Container:**
 
-    Execute this command to create an image that'll be provisioned on k8s
+   Execute this command to create an image that'll be provisioned on k8s
 
     ```bash
     docker build --platform linux/amd64 -t ${containerRegistry}/${containerRepository}/reactive-finance:${version} -f ./Server/Src/Main/Infrastructure/Cloud/Dockerfile .
     ```
 
-2. **Pushing and versioning via container registry:**
+2. **Pushing and Versioning via Container Registry:**
 
-   Push the image to a secure container registry
+   Push the image to a secure container registry:
+
     ```bash
     docker push ${containerRegistry}/${containerRepository}/reactive-finance:${version}
     ```
 
-3. **Spinning up Cloud Ready Container:**
+3. **Spinning Up Cloud Ready Container:**
 
-   Execute this command to create an image that'll be provisioned on k8s
+   Execute this command to create an image that'll be provisioned on k8s:
+
    ```bash
-    kubectl apply -f ./Server/Src/Main/Infrastructure/Cloud/deployment.yml
+   kubectl apply -f ./Server/Src/Main/Infrastructure/Cloud/deployment.yml
    ```
+
 ---
 
 ### 🔬 Running Integration Tests
@@ -220,7 +236,7 @@ The project includes integration tests to ensure that everything is functioning 
 
 ---
 
-## 🧑‍💻 API Endpoints
+### 🧑‍💻 API Endpoints
 
 ### 1. **POST /v1/WriteCurrencyResource**
 
@@ -250,6 +266,27 @@ The project includes integration tests to ensure that everything is functioning 
 - **Description**: Retrieve a specific currency resource by currency code.
 - **Path Parameter**: `currencyCode` (e.g., `ZAR` for South African Rand).
 
+---
+
+### 🌻 Dapper Code Gen - Strongly Typed Entities
+
+#### 🖥️ **Setting Permissions (Linux/macOS)**
+
+If you're on **macOS** or **Linux**, you might need to provide execution permissions to some of the scripts. You can do this by running:
+
+```bash
+chmod +x ./Src/Dapper/CodeGen/generate.sh && ./Src/Dapper/CodeGen/generate.sh
+```
+
+This command gives the script execution permissions so you can run it without issues.
+
+#### 🖥️ **Setting Permissions (Windows)**
+
+On **Windows**, you typically don't need to change file permissions. However, if you face issues executing a script, ensure that you're running the terminal with administrator rights or use PowerShell.
+
+```bash
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process; ./Src/Dapper/CodeGen/generate.sh
+```
 ---
 
 Happy coding! 🎉🚀
