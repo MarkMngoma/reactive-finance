@@ -1,3 +1,4 @@
+![example workflow](https://github.com/github/docs/actions/workflows/dotnet.yml/badge.svg)
 # 🏦 **Reactive Finance API** 🚀
 
 Welcome to the **Reactive Finance** API! This is a powerful API for managing and querying currency resources with cutting-edge features built using **.NET Core 8**.
