@@ -24,12 +24,6 @@ jobs:
       with:
         dotnet-version: 8.0.x
 
-    - name: Restore dependencies
-      run: dotnet restore ./Server/Server.csproj
-
-    - name: Build
-      run: dotnet build ./Server/Server.csproj --no-restore
-
     - name: Test
       run: dotnet test --logger "console;verbosity=detailed"
 
