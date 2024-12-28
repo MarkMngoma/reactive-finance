@@ -27,7 +27,3 @@ jobs:
     - name: Test
       run: | 
         dotnet test Server.IntegrationTests/Server.IntegrationTests.csproj --logger "console;verbosity=detailed"
-      
-    - name: Stop Docker Compose services
-      run: |
-        docker-compose -f ./Server.IntegrationTests/Src/Main/Infrastructure/TestContainers/docker-compose.yml down
