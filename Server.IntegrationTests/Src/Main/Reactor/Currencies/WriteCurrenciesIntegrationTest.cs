@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Dapper;
+using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 using MySql.Data.MySqlClient;
@@ -86,6 +87,19 @@ public class WriteCurrenciesIntegrationTest : IClassFixture<WebApplicationFactor
 
     // Then -- ensure result contains the created status code
     Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+    var queryResponse = await _testHttpClient.GetAsync($"/v1/QueryCurrencyResource/{expectedCurrencyCode}");
+
+    // Then -- ensure success result contains desired entry
+    queryResponse.EnsureSuccessStatusCode();
+    var responsePayload = await JsonSerializer.DeserializeAsync<CurrencyDto[]>(await response.Content.ReadAsStreamAsync(), new JsonSerializerOptions
+    {
+      PropertyNameCaseInsensitive = true,
+      PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower
+    });
+
+    Assert.True(responsePayload.Length > 0);
+    responsePayload[0].CurrencyCode.Should().Match(expectedCurrencyCode);
   }
 
   [Fact]
@@ -128,6 +142,7 @@ public class WriteCurrenciesIntegrationTest : IClassFixture<WebApplicationFactor
 
   public void Dispose()
   {
+    _testHttpClient.Dispose();
     var connection = new MySqlConnection(_connectionString);
     Observable.FromAsync(() => connection.OpenAsync())
       .SelectMany(_ => Observable.FromAsync(() => connection.ExecuteAsync("DELETE FROM dboFinance.CURRENCIES WHERE CURRENCY_ID IS NOT NULL")))

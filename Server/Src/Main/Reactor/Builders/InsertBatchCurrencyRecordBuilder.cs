@@ -1,6 +1,7 @@
 using Src.Main.Reactor.Models.Dto;
+using static Src.Main.Reactor.Builders.Tables.Generated.CurrenciesTable;
 
-namespace Src.Main.Infrastructure.Builders;
+namespace Src.Main.Reactor.Builders;
 
 public class InsertBatchCurrencyRecordBuilder
 {
@@ -10,7 +11,7 @@ public class InsertBatchCurrencyRecordBuilder
   {
     dto.BatchCurrencies.ForEach(item =>
     {
-      _currencies.Add(new CurrencyDto()
+      _currencies.Add(new CurrencyDto
       {
         CurrencyId = item.CurrencyId,
         CurrencyCode = item.CurrencyCode,
@@ -42,13 +43,13 @@ public class InsertBatchCurrencyRecordBuilder
 
   private IReadOnlyList<string> Columns { get; } = new List<string>
   {
-    "CURRENCY_ID",
-    "CURRENCY_CODE",
-    "CURRENCY_SYMBOL",
-    "CURRENCY_FLAG",
-    "CURRENCY_NAME",
-    "ARCHIVED",
-    "CREATED_AT",
-    "CREATED_BY"
+    CurrencyId,
+    CurrencyCode,
+    CurrencySymbol,
+    CurrencyFlag,
+    CurrencyName,
+    Archived,
+    CreatedAt,
+    CreatedBy
   };
 }

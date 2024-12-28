@@ -4,14 +4,13 @@ using Microsoft.AspNetCore.Mvc;
 using SqlKata.Execution;
 using Src.Main.Reactor.Clients;
 using Src.Main.Reactor.Handlers.CrossCutting;
+using static Src.Main.Reactor.Builders.Tables.Generated.CurrenciesTable;
 
 namespace Src.Main.Reactor.Handlers.Business;
 
 public class QueryCurrenciesHandler
 {
   private static readonly ILog Logger = LogManager.GetLogger(typeof(QueryCurrenciesHandler));
-
-  private const string TableName = "CURRENCIES";
 
   private readonly FxHttpClient _fxHttpClient;
   private readonly QueryFactory _queryFactory;
@@ -36,7 +35,7 @@ public class QueryCurrenciesHandler
   {
     Logger.Info("QueryCurrenciesHandler@QueryCollectiveCurrencies initiated...");
     return Observable.FromAsync(() => _queryFactory.Query(TableName)
-        .Select("ID", "CURRENCY_ID", "CURRENCY_CODE", "CURRENCY_NAME", "CURRENCY_SYMBOL", "CURRENCY_FLAG")
+        .Select(Id, CurrencyId, CurrencyCode, CurrencyName, CurrencySymbol, CurrencyFlag)
         .GetAsync()
       )
       .Retry(3)
@@ -58,8 +57,8 @@ public class QueryCurrenciesHandler
   public IObservable<IEnumerable<dynamic>> FetchCurrencyUsingCode(string currencyCode)
   {
     return Observable.FromAsync(() => _queryFactory.Query(TableName)
-      .Select("ID", "CURRENCY_ID", "CURRENCY_CODE", "CURRENCY_NAME", "CURRENCY_SYMBOL", "CURRENCY_FLAG")
-      .Where("CURRENCY_CODE", currencyCode)
+      .Select(Id, CurrencyId, CurrencyCode, CurrencyName, CurrencySymbol, CurrencyFlag)
+      .Where(CurrencyCode, currencyCode)
       .Limit(1)
       .GetAsync()
     );
