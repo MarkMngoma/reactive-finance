@@ -1,0 +1,3 @@
+[submodule "Src/Dapper/CodeGen"]
+	path = Src/Dapper/CodeGen
+	url = git@github.com:MarkMngoma/dapper-code-gen.git

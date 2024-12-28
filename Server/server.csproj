@@ -19,6 +19,7 @@
   <ItemGroup>
     <Folder Include="Src\"/>
     <EmbeddedResource Include="Src/Main/Infrastructure/Migrations/*.sql" />
+    <Folder Include="Src\Main\Reactor\Builders\Tables\Generated\" />
   </ItemGroup>
   
 </Project>

@@ -1,6 +1,6 @@
 using Src.Main.Reactor.Models.Dto;
 
-namespace Src.Main.Infrastructure.Builders;
+namespace Src.Main.Reactor.Builders;
 
 public class InsertCurrencyRecordBuilder
 {
