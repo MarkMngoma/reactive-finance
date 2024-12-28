@@ -1,0 +1,46 @@
+name: .NET
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Docker Compose
+      uses: docker/setup-buildx-action@v2
+      with:
+        version: latest
+
+    - name: Set up Docker Compose Action
+      uses: docker/compose-action@v2
+      with:
+        docker-compose-file: './Server.IntegrationTests/Src/Main/Infrastructure/TestContainers/docker-compose.yml'
+
+    - name: Start MariaDB using Docker Compose
+      run: |
+        docker-compose -f ./Server.IntegrationTests/Src/Main/Infrastructure/TestContainers/docker-compose.yml up -d
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build
+      run: dotnet build --no-restore
+
+    - name: Test
+      run: dotnet test --no-build --verbosity normal
+
+    - name: Stop Docker Compose services
+      run: |
+        docker-compose -f ./Server.IntegrationTests/Src/Main/Infrastructure/TestContainers/docker-compose.yml down
