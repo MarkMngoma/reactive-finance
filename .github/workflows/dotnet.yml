@@ -21,7 +21,7 @@ jobs:
     - name: Set up Docker Compose Action
       uses: hoverkraft-tech/compose-action@v2.0.1
       with:
-        docker-compose-file: './Server.IntegrationTests/Src/Main/Infrastructure/TestContainers/docker-compose.yml'
+        compose-file: "./Server.IntegrationTests/Src/Main/Infrastructure/TestContainers/docker-compose.yml"
 
     - name: Start MariaDB using Docker Compose
       run: |
