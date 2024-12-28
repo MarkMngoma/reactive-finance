@@ -1,7 +1,3 @@
-Here is an updated version of your README, including instructions on how to run the scripts on macOS, Linux, and Windows, provide permissions, and utilize Git commands such as `git submodule init` and `git submodule update --recursive`.
-
----
-
 # 🏦 **Reactive Finance API** 🚀
 
 Welcome to the **Reactive Finance** API! This is a powerful API for managing and querying currency resources with cutting-edge features built using **.NET Core 8**.
