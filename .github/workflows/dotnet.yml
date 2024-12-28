@@ -26,8 +26,8 @@ jobs:
 
     - name: Test
       run: | 
-        ls -R
-        dotnet test --logger "console;verbosity=detailed"
+        ls -R /home/runner/work/reactive-finance/reactive-finance
+        dotnet test ./Server.csproj --logger "console;verbosity=detailed"
       
     - name: Stop Docker Compose services
       run: |
