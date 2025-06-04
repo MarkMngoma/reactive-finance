@@ -17,7 +17,7 @@ jobs:
       uses: hoverkraft-tech/compose-action@v2.0.1
       with:
         version: latest
-        compose-file: "./Server.IntegrationTests/Src/Main/Infrastructure/TestContainers/docker-compose.yml"
+        compose-file: "./Server.IntegrationTests/Infrastructure/TestContainers/docker-compose.yml"
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
@@ -25,5 +25,5 @@ jobs:
         dotnet-version: 8.0.x
 
     - name: Test
-      run: | 
+      run: |
         dotnet test Server.IntegrationTests/Server.IntegrationTests.csproj --logger "console;verbosity=detailed"

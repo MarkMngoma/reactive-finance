@@ -1,0 +1,10 @@
+services:
+  db:
+    image: bitnami/mariadb:latest
+    environment:
+      MARIADB_ROOT_PASSWORD: NE683IIuJXMhxhd8NC2kNjCnOzs=
+      MARIADB_DATABASE: dboFinance
+      MARIADB_USER: dboFinance
+      MARIADB_PASSWORD: mdn9VBYldGcmLo01lt5Y3lpQqeE=
+    ports:
+      - "60339:3306"
