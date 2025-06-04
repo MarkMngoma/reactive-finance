@@ -14,9 +14,9 @@ public class QueryCurrenciesHandler
   private static readonly ILog Logger = LogManager.GetLogger(typeof(QueryCurrenciesHandler));
 
   private readonly FxHttpClient _fxHttpClient;
-  private readonly CurrencyDao _currencyDao;
+  private readonly CurrencyDomainHandler _currencyDao;
 
-  public QueryCurrenciesHandler(FxHttpClient fxHttpClient, CurrencyDao currencyDao)
+  public QueryCurrenciesHandler(FxHttpClient fxHttpClient, CurrencyDomainHandler currencyDao)
   {
     _fxHttpClient = fxHttpClient;
     _currencyDao = currencyDao;
@@ -27,7 +27,7 @@ public class QueryCurrenciesHandler
     Logger.Info("QueryCurrenciesHandler@QueryPartyExchangeRates initiated...");
     return _fxHttpClient.QueryExternalPartyExchangeRates()
       .Do(dto => Logger.Debug($"QueryCurrenciesHandler@QueryPartyExchangeRates preparing response :: {dto}"))
-      .SelectMany(ContentResultUtil.Render)
+      .Select(ContentResultUtil.Render)
       .SubscribeOn(new EventLoopScheduler());
   }
 
@@ -38,7 +38,7 @@ public class QueryCurrenciesHandler
       .Retry(3)
       .Timeout(TimeSpan.FromMilliseconds(2000))
       .Do(dataResult => Logger.Debug($"QueryCurrenciesHandler@QueryCollectiveCurrencies domain result :: {dataResult.ToList().Count}"))
-      .SelectMany(ContentResultUtil.Render)
+      .Select(ContentResultUtil.Render)
       .Finally(() => Logger.Info($"SubscribedOn: {Thread.CurrentThread.Name}"))
       .SubscribeOn(new EventLoopScheduler());
   }
@@ -50,7 +50,7 @@ public class QueryCurrenciesHandler
       .Retry(3)
       .Timeout(TimeSpan.FromMilliseconds(2000))
       .Do(dataResult => Logger.Debug($"QueryCurrenciesHandler@QueryCurrencyUsingCurrencyCode domain result :: {JsonSerializer.Serialize(dataResult)}"))
-      .SelectMany(ContentResultUtil.Render)
+      .Select(ContentResultUtil.Render)
       .Finally(() => Logger.Info($"SubscribedOn: {Thread.CurrentThread.Name}"))
       .SubscribeOn(new EventLoopScheduler());
   }

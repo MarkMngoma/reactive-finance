@@ -21,7 +21,7 @@
       "FormApiBaseUrl": "https://www.payfast.co.za",
       "ReturnUrl": "/v1/CallbackResource/Succeeded/{transactionId}",
       "CancelUrl": "/v1/CallbackResource/Cancelled/{transactionId}",
-      "NotifyUrl": "/v1/CallbackResource/{transactionId}"
+      "NotifyUrl": "/v1/SettlementResource/{transactionId}"
     }
   }
 }

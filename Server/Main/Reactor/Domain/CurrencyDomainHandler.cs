@@ -7,11 +7,11 @@ using static Server.Main.Reactor.Builders.Tables.Generated.CurrenciesTable;
 
 namespace Server.Main.Reactor.Domain;
 
-public class CurrencyDao
+public class CurrencyDomainHandler
 {
   private readonly QueryFactory _queryFactory;
 
-  public CurrencyDao(QueryFactory queryFactory)
+  public CurrencyDomainHandler(QueryFactory queryFactory)
   {
     _queryFactory = queryFactory;
   }
@@ -38,7 +38,13 @@ public class CurrencyDao
 
   public IObservable<int> InsertCurrencyRecord(CurrencyRequest request)
   {
-    var record = new InsertCurrencyRecordBuilder(request)
+    var record = new CurrencyRecordBuilder()
+      .WithCurrencyCode(request.CurrencyCode)
+      .WithCurrencySymbol(request.CurrencySymbol)
+      .WithCurrencyFlag(request.CurrencyFlag)
+      .WithCurrencyName(request.CurrencyName)
+      .WithCurrencyId(request.CurrencyId)
+      .WithDefaults()
       .Build();
     return Observable.FromAsync(() => _queryFactory
       .Query(TableName)

@@ -13,23 +13,23 @@ public class WriteCurrenciesHandler : IHandler<CurrencyRequest>
 {
   private static readonly ILog Logger = LogManager.GetLogger(typeof(QueryCurrenciesHandler));
 
-  private readonly CurrencyDao _currencyDao;
-  private readonly QueryCurrenciesHandler _handler;
+  private readonly CurrencyDomainHandler _currencyDomainHandler;
+  private readonly QueryCurrenciesHandler _queryCurrenciesHandler;
 
-  public WriteCurrenciesHandler(CurrencyDao currencyDao, QueryCurrenciesHandler handler)
+  public WriteCurrenciesHandler(CurrencyDomainHandler _currencyDomainHandler, QueryCurrenciesHandler _queryCurrenciesHandler)
   {
-    _currencyDao = currencyDao;
-    _handler = handler;
+    this._currencyDomainHandler = _currencyDomainHandler;
+    this._queryCurrenciesHandler = _queryCurrenciesHandler;
   }
 
   public IObservable<JsonResult> Handle(CurrencyRequest request)
   {
-    return _currencyDao.InsertCurrencyRecord(request)
+    return _currencyDomainHandler.InsertCurrencyRecord(request)
       .Select(_ => request)
       .Timeout(TimeSpan.FromMilliseconds(2000))
-      .SelectMany(_ => _currencyDao.SelectCurrencyUsingCode(request.CurrencyCode))
+      .SelectMany(_ => _currencyDomainHandler.SelectCurrencyUsingCode(request.CurrencyCode))
       .Do(dataResult => Logger.Debug($"WriteCurrenciesHandler@Handle domain result :: {JsonSerializer.Serialize(dataResult)}"))
-      .SelectMany(ContentResultUtil.Render)
+      .Select(ContentResultUtil.Render)
       .Finally(() => Logger.Info($"SubscribedOn: {Thread.CurrentThread.Name}"))
       .SubscribeOn(new EventLoopScheduler());
   }

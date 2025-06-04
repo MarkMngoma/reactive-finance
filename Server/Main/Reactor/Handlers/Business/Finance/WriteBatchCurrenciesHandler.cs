@@ -13,10 +13,10 @@ public class WriteBatchCurrenciesHandler : IHandler<BatchCurrencyRequest>
 {
   private static readonly ILog Logger = LogManager.GetLogger(typeof(QueryCurrenciesHandler));
 
-  private readonly CurrencyDao _currencyDao;
+  private readonly CurrencyDomainHandler _currencyDao;
   private readonly QueryCurrenciesHandler _handler;
 
-  public WriteBatchCurrenciesHandler(CurrencyDao currencyDao, QueryCurrenciesHandler handler)
+  public WriteBatchCurrenciesHandler(CurrencyDomainHandler currencyDao, QueryCurrenciesHandler handler)
   {
     _currencyDao = currencyDao;
     _handler = handler;

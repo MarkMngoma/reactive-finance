@@ -10,7 +10,7 @@ public class ContentResultUtil
 {
   private static readonly ILog Logger = LogManager.GetLogger(typeof(ContentResultUtil));
 
-  public static IObservable<JsonResult> Render<T>(T resultInstance)
+  public static JsonResult Render<T>(T resultInstance)
   {
     var jsonOptions = new JsonSerializerOptions
     {
@@ -19,12 +19,20 @@ public class ContentResultUtil
       DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
       PropertyNameCaseInsensitive = true
     };
-    return Observable.Return(new JsonResult(resultInstance, jsonOptions));
+    return new JsonResult(resultInstance, jsonOptions)
+    {
+      StatusCode = StatusCodes.Status200OK
+    };
   }
 
   public static IObservable<IActionResult> Throw(Exception exception, int statusCode)
   {
     Logger.Error($"ContentResultUtil@Throw result :: {exception}");
-    return Observable.Return(new StatusCodeResult(statusCode));
+    return Observable.Return(new ContentResult
+    {
+      Content = JsonSerializer.Serialize(new { error = exception.Message }),
+      ContentType = "application/json",
+      StatusCode = statusCode
+    });
   }
 }

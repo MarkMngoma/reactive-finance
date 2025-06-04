@@ -101,7 +101,7 @@ public class Program
 
   private static void ConfigureDomainModules(IServiceCollection services)
   {
-    services.AddSingleton<CurrencyDao>();
+    services.AddSingleton<CurrencyDomainHandler>();
   }
 
   private static void ConfigureClientModules(IServiceCollection services)
