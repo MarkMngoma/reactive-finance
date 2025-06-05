@@ -1,5 +1,5 @@
 -- Migration script: V20250603123844_createFinancialProductSequenceWithTable.sql
--- Author: markmngoma
+-- Author: Mark Mngoma
 -- Created on: 03/06/2025 12:38
 CREATE SEQUENCE IF NOT EXISTS dboFinance.FINANCIAL_PRODUCT_SEQ START WITH 1 INCREMENT BY 1 CACHE 1 NOCYCLE;
 

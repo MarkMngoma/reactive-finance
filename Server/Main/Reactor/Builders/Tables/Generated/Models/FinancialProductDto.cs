@@ -19,7 +19,9 @@ namespace Server.Main.Reactor.Builders.Tables.Generated.Models
     public string Description { get; set; }
     public string Price { get; set; }
     public string BillingCycle { get; set; }
+    [System.Text.Json.Serialization.JsonIgnore]
     public DateTime CreatedAt { get; set; }
+    [System.Text.Json.Serialization.JsonIgnore]
     public DateTime? UpdatedAt { get; set; }
   }
 }

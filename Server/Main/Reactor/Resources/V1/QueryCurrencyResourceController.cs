@@ -3,7 +3,7 @@ using System.Reactive.Threading.Tasks;
 using log4net;
 using Microsoft.AspNetCore.Mvc;
 using Server.Main.Reactor.Handlers.Business.Finance;
-using Server.Main.Reactor.Handlers.CrossCutting;
+using Server.Main.Reactor.Handlers.CrossCutting.Utils;
 
 namespace Server.Main.Reactor.Resources.V1;
 
@@ -26,9 +26,9 @@ public class QueryCurrencyResourceController: ControllerBase
   public Task<IActionResult> GetSupportedCurrencies()
   {
     Logger.Info("QueryCurrencyResourceController@GetSupportedCurrencies initiated...");
-    return _queryCurrenciesHandler.QueryCollectiveCurrencies()
-    .Catch<IActionResult, Exception>(ex => ContentResultUtil.Throw(ex, StatusCodes.Status404NotFound))
-    .ToTask();
+    return _queryCurrenciesHandler.HandleCurrencyListQuery()
+      .Catch<IActionResult, Exception>(ex => ContentResultUtil.Throw(ex, StatusCodes.Status404NotFound))
+      .ToTask();
   }
 
   [HttpGet]
@@ -36,7 +36,7 @@ public class QueryCurrencyResourceController: ControllerBase
   public Task<IActionResult> GetSupportedCurrencyCodes(string currencyCode)
   {
     Logger.Info("QueryCurrencyResourceController@GetSupportedCurrencyCodes initiated...");
-    return _queryCurrenciesHandler.QueryCurrencyUsingCurrencyCode(currencyCode)
+    return _queryCurrenciesHandler.Handle(currencyCode)
       .Catch<IActionResult, Exception>(ex => ContentResultUtil.Throw(ex, StatusCodes.Status404NotFound))
       .ToTask();
   }
@@ -46,7 +46,7 @@ public class QueryCurrencyResourceController: ControllerBase
   public Task<IActionResult> GetExchangeRates()
   {
     Logger.Info("QueryCurrencyResourceController@GetExchangeRates initiated...");
-    return _queryCurrenciesHandler.QueryPartyExchangeRates()
+    return _queryCurrenciesHandler.HandlePartyExchangeRatesQuery()
       .Catch<IActionResult, Exception>(ex => ContentResultUtil.Throw(ex, StatusCodes.Status404NotFound))
       .ToTask();
   }

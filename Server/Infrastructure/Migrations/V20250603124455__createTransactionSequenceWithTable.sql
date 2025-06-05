@@ -1,5 +1,5 @@
 -- Migration script: V20250603124455_createTransactionSequenceWithTable.sql
--- Author: markmngoma
+-- Author: Mark Mngoma
 -- Created on: 03/06/2025 12:44
 CREATE SEQUENCE IF NOT EXISTS dboFinance.TRANSACTION_SEQ START WITH 1 INCREMENT BY 1 CACHE 1 NOCYCLE;
 

@@ -15,6 +15,9 @@ using Server.Main.Reactor.Domain;
 using Server.Main.Reactor.Handlers.Business.Finance;
 using Server.Main.Reactor.Handlers.CrossCutting;
 using Server.Main.Reactor.Middleware;
+using Microsoft.OpenApi.Models;
+using Server.Main.Reactor.Handlers.CrossCutting.Utils;
+using Server.Main.Reactor.Resources.V1;
 
 namespace Server.Main.Reactor;
 
@@ -87,21 +90,32 @@ public class Program
         options.JsonSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
         options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
       });
-
+    services.AddExceptionHandler<GlobalExceptionHandler>();
+    services.AddProblemDetails();
     services.AddEndpointsApiExplorer();
+    services.AddSwaggerGen(options =>
+    {
+        options.SwaggerDoc("v1", new OpenApiInfo
+        {
+            Version = "v1",
+            Title = "Reactor API V1",
+            Description = "An ASP.NET Core Web API for managing ToDo items"
+        });
+    });
   }
 
   private static void ConfigureHandlerModules(IServiceCollection services)
   {
-    services.AddSingleton<ContentResultUtil>();
     services.AddSingleton<WriteCurrenciesHandler>();
     services.AddSingleton<WriteBatchCurrenciesHandler>();
     services.AddSingleton<QueryCurrenciesHandler>();
+    services.AddSingleton<QueryFinancialProductHandler>();
   }
 
   private static void ConfigureDomainModules(IServiceCollection services)
   {
     services.AddSingleton<CurrencyDomainHandler>();
+    services.AddSingleton<FinancialProductDomainHandler>();
   }
 
   private static void ConfigureClientModules(IServiceCollection services)
@@ -113,11 +127,20 @@ public class Program
   private static void ConfigureMiddleware(WebApplication app)
   {
     app.UseMiddleware<LoggingMiddleware>();
-
-    app.UseExceptionHandler("/ErrorResource/Error");
+    app.UseExceptionHandler();
     if (!app.Environment.IsDevelopment())
     {
       app.UseHsts();
+    }
+
+    if (app.Environment.IsDevelopment())
+    {
+      app.UseSwagger();
+      app.UseSwaggerUI(c =>
+      {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Reactor API V1");
+        c.RoutePrefix = string.Empty;
+      });
     }
 
     app.UseHttpsRedirection();

@@ -1,5 +1,5 @@
 -- Migration script: V20250603124114_createSubscriptionSequenceWithTable.sql
--- Author: markmngoma
+-- Author: Mark Mngoma
 -- Created on: 03/06/2025 12:41
 CREATE SEQUENCE IF NOT EXISTS dboFinance.SUBSCRIPTIONS_SEQ START WITH 1 INCREMENT BY 1 CACHE 1 NOCYCLE;
 

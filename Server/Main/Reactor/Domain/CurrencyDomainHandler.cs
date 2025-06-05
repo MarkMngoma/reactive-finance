@@ -61,4 +61,12 @@ public class CurrencyDomainHandler
       .InsertAsync(batchRecords.Columns, batchRecords.Records))
       .SubscribeOn(TaskPoolScheduler.Default);
   }
+
+  public IObservable<int> DeleteCurrencyRecords()
+  {
+    return Observable.FromAsync(() => _queryFactory
+      .Query(TableName)
+      .DeleteAsync())
+      .SubscribeOn(TaskPoolScheduler.Default);
+  }
 }

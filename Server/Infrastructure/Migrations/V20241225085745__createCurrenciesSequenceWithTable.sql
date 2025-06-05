@@ -1,5 +1,5 @@
 -- Migration script: V20241225085745_createCurrenciesSequenceWithTable.sql
--- Author: markmngoma
+-- Author: Mark Mngoma
 -- Created on: 25/12/2024 08:57
 CREATE SEQUENCE IF NOT EXISTS dboFinance.CURRENCIES_SEQ START WITH 1 INCREMENT BY 1 CACHE 1 NOCYCLE;
 

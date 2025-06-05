@@ -3,9 +3,11 @@ using System.Reactive.Linq;
 using Server.Main.Reactor.Builders;
 using Server.Main.Reactor.Builders.Tables.Generated;
 using Server.Main.Reactor.Builders.Tables.Generated.Models;
+using Server.Main.Reactor.Handlers.CrossCutting.Exceptions;
 using Server.Main.Reactor.Models.Request.Transactions;
 using SqlKata.Execution;
 
+using static Server.Main.Reactor.Builders.Tables.Generated.TransactionsTable;
 namespace Server.Main.Reactor.Domain;
 
 public class TransactionDomainHandler
@@ -30,19 +32,19 @@ public class TransactionDomainHandler
       .WithCreatedAt(DateTime.UtcNow)
       .Build();
     return Observable.FromAsync(() => _queryFactory
-      .Query(TransactionsTable.TableName)
+      .Query(TableName)
       .InsertAsync(record))
       .SubscribeOn(TaskPoolScheduler.Default);
   }
 
-  public IObservable<int> UpdateTransaction(UpdateTransactionRequest request)
+  public IObservable<TransactionsDto> UpdateTransaction(UpdateTransactionRequest request)
   {
     return SelectTransactionById(request.TransactionId)
       .Do(existingTransaction =>
       {
         if (existingTransaction.TransactionId == null)
         {
-          throw new InvalidOperationException("Transaction not found.");
+          throw new StandardException("Transaction not found.", StatusCodes.Status404NotFound);
         }
       })
       .Select(existingRecord =>
@@ -51,35 +53,23 @@ public class TransactionDomainHandler
         existingRecord.UpdatedAt = DateTime.UtcNow;
         return existingRecord;
       })
-      .SelectMany(record => _queryFactory
-        .Query(TransactionsTable.TableName)
-        .UpdateAsync(record)
-      )
+      .SelectMany(record => _queryFactory.Query(TableName).UpdateAsync(record))
+      .SelectMany(_ => SelectTransactionById(request.TransactionId))
       .SubscribeOn(TaskPoolScheduler.Default);
   }
 
   public IObservable<TransactionsDto> SelectTransactionById(string? searchId)
   {
     return Observable.FromAsync(() =>
-        _queryFactory.Query(TransactionsTable.TableName)
-          .Select(
-            TransactionsTable.TransactionId,
-            TransactionsTable.SubscriptionId,
-            TransactionsTable.Type,
-            TransactionsTable.Amount,
-            TransactionsTable.Currency,
-            TransactionsTable.Status,
-            TransactionsTable.AuthorizationId,
-            TransactionsTable.TransactionDate,
-            TransactionsTable.Description
-          )
-          .Where(TransactionsTable.TransactionId, searchId)
-          .OrWhere(TransactionsTable.SubscriptionId, searchId)
-          .OrWhere(TransactionsTable.AuthorizationId, searchId)
-          .OrWhere(TransactionsTable.Id, searchId)
+        _queryFactory.Query(TableName)
+          .Select(TransactionId, SubscriptionId, TransactionsTable.Type, Amount, Currency, Status, AuthorizationId, TransactionDate, Description)
+          .Where(TransactionId, searchId)
+          .OrWhere(SubscriptionId, searchId)
+          .OrWhere(AuthorizationId, searchId)
+          .OrWhere(Id, searchId)
           .FirstOrDefaultAsync<TransactionsDto>()
       )
       .DefaultIfEmpty(new TransactionsDto())
-      .SubscribeOn(Scheduler.Default);
+      .SubscribeOn(TaskPoolScheduler.Default);
   }
 }
