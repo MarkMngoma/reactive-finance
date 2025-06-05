@@ -1,52 +1,55 @@
-using Server.Main.Reactor.Builders.Tables.Generated.Models;
-
 namespace Server.Main.Reactor.Builders;
 
 public class CurrencyRecordBuilder
 {
-    private readonly CurrenciesDto _dto = new();
+   private int? _currencyId;
+    private string? _currencyCode;
+    private string? _currencySymbol;
+    private string? _currencyFlag;
+    private string? _currencyName;
 
     public CurrencyRecordBuilder WithCurrencyId(int currencyId)
     {
-        _dto.CurrencyId = currencyId;
+        _currencyId = currencyId;
         return this;
     }
 
     public CurrencyRecordBuilder WithCurrencyCode(string currencyCode)
     {
-        _dto.CurrencyCode = currencyCode;
+        _currencyCode = currencyCode;
         return this;
     }
 
     public CurrencyRecordBuilder WithCurrencySymbol(string currencySymbol)
     {
-        _dto.CurrencySymbol = currencySymbol;
+        _currencySymbol = currencySymbol;
         return this;
     }
 
     public CurrencyRecordBuilder WithCurrencyFlag(string currencyFlag)
     {
-        _dto.CurrencyFlag = currencyFlag;
+        _currencyFlag = currencyFlag;
         return this;
     }
 
     public CurrencyRecordBuilder WithCurrencyName(string currencyName)
     {
-        _dto.CurrencyName = currencyName;
+        _currencyName = currencyName;
         return this;
     }
 
-    public CurrencyRecordBuilder WithDefaults()
+    public object Build()
     {
-        _dto.Archived = false;
-        _dto.CreatedAt = DateTimeOffset.Now.UtcDateTime;
-        _dto.CreatedBy = 1u;
-        return this;
+        return new
+        {
+            CURRENCY_ID = _currencyId,
+            CURRENCY_CODE = _currencyCode,
+            CURRENCY_SYMBOL = _currencySymbol,
+            CURRENCY_FLAG = _currencyFlag,
+            CURRENCY_NAME = _currencyName,
+            ARCHIVED = 0,
+            CREATED_AT = DateTimeOffset.Now,
+            CREATED_BY = 1
+        };
     }
-
-    public CurrenciesDto Build()
-    {
-        return _dto;
-    }
-
 }

@@ -38,17 +38,16 @@ public class CurrencyDomainHandler
 
   public IObservable<int> InsertCurrencyRecord(CurrencyRequest request)
   {
-    var record = new CurrencyRecordBuilder()
-      .WithCurrencyCode(request.CurrencyCode)
-      .WithCurrencySymbol(request.CurrencySymbol)
-      .WithCurrencyFlag(request.CurrencyFlag)
-      .WithCurrencyName(request.CurrencyName)
-      .WithCurrencyId(request.CurrencyId)
-      .WithDefaults()
-      .Build();
     return Observable.FromAsync(() => _queryFactory
       .Query(TableName)
-      .InsertAsync(record))
+      .InsertAsync(new CurrencyRecordBuilder()
+        .WithCurrencyCode(request.CurrencyCode)
+        .WithCurrencySymbol(request.CurrencySymbol)
+        .WithCurrencyFlag(request.CurrencyFlag)
+        .WithCurrencyName(request.CurrencyName)
+        .WithCurrencyId(request.CurrencyId)
+        .Build())
+      )
       .SubscribeOn(TaskPoolScheduler.Default);
   }
 

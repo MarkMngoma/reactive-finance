@@ -7,47 +7,58 @@ using Dapper;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 using MySql.Data.MySqlClient;
+using NUnit.Framework;
 using Server.Main.Reactor;
-using Xunit;
 
 namespace Server.IntegrationTests.Main.Reactor.Currencies;
 
-public class QueryCurrenciesIntegrationTest : IClassFixture<WebApplicationFactory<Program>>, IDisposable
+[TestFixture]
+public class QueryCurrenciesIntegrationTest
 {
-  private readonly string _connectionString;
-  private readonly HttpClient _testHttpClient;
+  private string _connectionString;
+  private HttpClient _testHttpClient;
+  private WebApplicationFactory<Program> _factory;
 
-  public QueryCurrenciesIntegrationTest(WebApplicationFactory<Program> factory)
+  [SetUp]
+  public void OneTimeSetUp()
   {
     var configuration = new ConfigurationBuilder()
-      .SetBasePath(AppContext.BaseDirectory)
-      .AddJsonFile("Infrastructure/Configuration/application.Development.json", optional: false, reloadOnChange: true)
-      .Build();
+        .SetBasePath(AppContext.BaseDirectory)
+        .AddJsonFile("Infrastructure/Configuration/application.Development.json", optional: false, reloadOnChange: true)
+        .Build();
 
     _connectionString = configuration.GetConnectionString("FinanceDatabase");
-    _testHttpClient = factory.CreateClient();
+
+    _factory = new WebApplicationFactory<Program>();
+    _testHttpClient = _factory.CreateClient();
   }
 
-  [Fact]
+  [Test]
   public async Task GivenRequestedPathWhenClientRequestsCollectiveQueryThenSuccessIsReturned()
   {
     var response = await _testHttpClient.GetAsync("/v1/QueryCurrencyResource");
     response.EnsureSuccessStatusCode();
+    Assert.That(HttpStatusCode.OK, Is.EqualTo(response.StatusCode));
   }
 
-  [Fact]
+  [Test]
   public async Task GivenRequestedPathNotFoundWhenClientRequestsCollectiveQueryThen404IsReturned()
   {
     var response = await _testHttpClient.GetAsync("/QueryCurrencyResource");
-    Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    Assert.That(HttpStatusCode.NotFound, Is.EqualTo(response.StatusCode));
   }
 
-  public void Dispose()
+  [TearDown]
+  public void OneTimeTearDown()
   {
-    _testHttpClient.Dispose();
-    var connection = new MySqlConnection(_connectionString);
+    Console.SetOut(TestContext.Progress);
+    _testHttpClient?.Dispose();
+    _factory?.Dispose();
+
+    using var connection = new MySqlConnection(_connectionString);
     Observable.FromAsync(() => connection.OpenAsync())
-      .SelectMany(_ => Observable.FromAsync(() => connection.ExecuteAsync("CREATE DATABASE IF NOT EXISTS dboFinance;")))
-      .Wait();
+        .SelectMany(_ => Observable.FromAsync(() => connection.ExecuteAsync("CREATE DATABASE IF NOT EXISTS dboFinance;")))
+        .Wait();
   }
 }
+

@@ -114,9 +114,9 @@ public class Program
   {
     app.UseMiddleware<LoggingMiddleware>();
 
+    app.UseExceptionHandler("/ErrorResource/Error");
     if (!app.Environment.IsDevelopment())
     {
-      app.UseExceptionHandler("/ErrorResource/Error");
       app.UseHsts();
     }
 
@@ -131,7 +131,6 @@ public class Program
     DeployChanges.To.MySqlDatabase(connectionString)
       .WithScriptsEmbeddedInAssembly(Assembly.GetExecutingAssembly())
       .LogTo(new Log4NetDbUpgradeLog(Logger))
-      .LogScriptOutput()
       .Build()
       .PerformUpgrade();
   }
