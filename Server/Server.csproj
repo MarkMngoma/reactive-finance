@@ -9,11 +9,13 @@
 
   <ItemGroup>
     <PackageReference Include="dbup-mysql" Version="6.0.4" />
+    <PackageReference Include="Hazelcast.Net" Version="5.5.0" />
     <PackageReference Include="JetBrains.Annotations" Version="2024.3.0" />
     <PackageReference Include="log4net" Version="3.0.3" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.23.0" />
     <PackageReference Include="Microsoft.ApplicationInsights.Log4NetAppender" Version="2.23.0" />
     <PackageReference Include="MySql.Data" Version="9.1.0" />
+    <PackageReference Include="NetEscapades.Configuration.Yaml" Version="3.1.0" />
     <PackageReference Include="SqlKata" Version="2.4.0" />
     <PackageReference Include="SqlKata.Execution" Version="2.4.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.4" />
@@ -25,9 +27,11 @@
     <Content Include="Infrastructure/Migrations/**/*.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <EmbeddedResource Include="Infrastructure/Configuration/*.json" />
+    <EmbeddedResource Include="Infrastructure/Configuration/*.yaml" />
+    <Content Include="Infrastructure/Configuration/application.Development.yaml" />
+    <Content Include="Infrastructure/Configuration/application.Production.yaml" />
     <Folder Include="Main\Reactor\Builders\Tables\Generated\" />
-    <None Update="Infrastructure/Configuration/application.Production.json">
+    <None Update="Infrastructure/Configuration/application.*.yaml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

@@ -2,10 +2,10 @@ using System.Reactive.Linq;
 using System.Text.Json;
 using log4net;
 using Microsoft.AspNetCore.Mvc;
-using Server.Main.Reactor.Domain;
 using Server.Main.Reactor.Handlers.CrossCutting;
-using Server.Main.Reactor.Handlers.CrossCutting.Utils;
+using Server.Main.Reactor.Handlers.Domain;
 using Server.Main.Reactor.Models.Request;
+using Server.Main.Reactor.Utils;
 
 namespace Server.Main.Reactor.Handlers.Business.Finance;
 
@@ -25,7 +25,7 @@ public class WriteCurrenciesHandler : Handler<CurrencyRequest>
   public override IObservable<JsonResult> Handle(CurrencyRequest request)
   {
     Logger.Debug($"WriteCurrenciesHandler@Handle initiated with request :: {JsonSerializer.Serialize(request)}");
-    return ExecCompute(request)
+    return HandleComputeEvent(request)
       .SelectMany(_currencyDomainHandler.InsertCurrencyRecord)
       .Timeout(TimeSpan.FromMilliseconds(2000))
       .SelectMany(_ => _currencyDomainHandler.SelectCurrencyUsingCode(request.CurrencyCode))

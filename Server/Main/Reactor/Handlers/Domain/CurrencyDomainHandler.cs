@@ -5,7 +5,7 @@ using Server.Main.Reactor.Builders;
 using Server.Main.Reactor.Models.Request;
 using static Server.Main.Reactor.Builders.Tables.Generated.CurrenciesTable;
 
-namespace Server.Main.Reactor.Domain;
+namespace Server.Main.Reactor.Handlers.Domain;
 
 public class CurrencyDomainHandler
 {

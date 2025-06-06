@@ -1,0 +1,27 @@
+Logging:
+  LogLevel:
+    Default: Information
+    Microsoft: Information
+    Microsoft.Hosting.Lifetime: Information
+
+ConnectionStrings:
+  FinanceDatabase: "Host=localhost;Port=60339;User=dboFinance;Password=mdn9VBYldGcmLo01lt5Y3lpQqeE=;Database=dboFinance;SslMode=None"
+
+IntegrationsConfig:
+  PayFast:
+    MerchantId: 12345678
+    MerchantKey: "abcdefghijklmnop"
+    Passphrase: "zyxwvutsrqponmlkjihgfedcba"
+    JsonApiBaseUrl: "https://api.payfast.co.za/v1"
+    FormApiBaseUrl: "https://www.payfast.co.za"
+    ReturnUrl: "/v1/CallbackResource/Succeeded/{transactionId}"
+    CancelUrl: "/v1/CallbackResource/Cancelled/{transactionId}"
+    NotifyUrl: "/v1/CallbackResource/{transactionId}"
+
+Hazelcast:
+  ServerAddress: "localhost:5701"
+
+TransactionConfig:
+  AllowedSettlementStatuses:
+    - "Pending"
+    - "Authorised"

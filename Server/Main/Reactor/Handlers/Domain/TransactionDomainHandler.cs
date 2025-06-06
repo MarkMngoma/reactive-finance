@@ -8,7 +8,8 @@ using Server.Main.Reactor.Models.Request.Transactions;
 using SqlKata.Execution;
 
 using static Server.Main.Reactor.Builders.Tables.Generated.TransactionsTable;
-namespace Server.Main.Reactor.Domain;
+
+namespace Server.Main.Reactor.Handlers.Domain;
 
 public class TransactionDomainHandler
 {
@@ -69,7 +70,6 @@ public class TransactionDomainHandler
           .OrWhere(Id, searchId)
           .FirstOrDefaultAsync<TransactionsDto>()
       )
-      .DefaultIfEmpty(new TransactionsDto())
       .SubscribeOn(TaskPoolScheduler.Default);
   }
 }

@@ -1,7 +1,7 @@
 using System;
 using Server.Main.Reactor.Builders.Tables.Generated.Models;
 
-namespace Server.Main.Reactor.Domain;
+namespace Server.Main.Reactor.Handlers.Domain;
 
 public class TransactionDetailsDomainHandler
 {

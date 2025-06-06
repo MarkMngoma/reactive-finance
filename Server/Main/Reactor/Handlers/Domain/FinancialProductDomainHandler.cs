@@ -4,7 +4,7 @@ using Server.Main.Reactor.Builders.Tables.Generated.Models;
 using SqlKata.Execution;
 using static Server.Main.Reactor.Builders.Tables.Generated.FinancialProductTable;
 
-namespace Server.Main.Reactor.Domain;
+namespace Server.Main.Reactor.Handlers.Domain;
 
 public class FinancialProductDomainHandler
 {

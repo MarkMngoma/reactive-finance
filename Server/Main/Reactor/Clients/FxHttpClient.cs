@@ -5,7 +5,7 @@ using Server.Main.Reactor.Models.Request;
 
 namespace Server.Main.Reactor.Clients;
 
-public class FxHttpClient : BasePayFastHttpClient
+public class FxHttpClient : BaseHttpClient
 {
   private static readonly ILog Logger = LogManager.GetLogger(typeof(FxHttpClient));
 

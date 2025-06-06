@@ -5,12 +5,13 @@ using Server.Main.Reactor.Models.Request.Transactions;
 
 namespace Server.Main.Reactor.Handlers.Business.Transactions;
 
-public class CreateRefundTransactionHandler : Handler<CreateTransactionRequest>
+public class CreateRefundTransactionHandler : Handler<UpdateTransactionRequest>
 {
-  private static readonly ILog Logger = LogManager.GetLogger(typeof(CreateAdhocTransactionHandler));
+  private static readonly ILog Logger = LogManager.GetLogger(typeof(CreateRefundTransactionHandler));
 
-  public override IObservable<JsonResult> Handle(CreateTransactionRequest request)
+  public override IObservable<JsonResult> Handle(UpdateTransactionRequest request)
   {
+    Logger.Info($"CreateRefundTransactionHandler@Handle initiated for TransactionId: {request.TransactionId}");
     throw new NotImplementedException();
   }
 }

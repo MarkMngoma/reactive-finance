@@ -2,12 +2,14 @@ using System.Reactive.Linq;
 using log4net;
 using Microsoft.AspNetCore.Mvc;
 using Server.Main.Reactor.Builders.Tables.Generated.Models;
-using Server.Main.Reactor.Domain;
+using Server.Main.Reactor.Configuration.Objects;
 using Server.Main.Reactor.Handlers.CrossCutting;
-using Server.Main.Reactor.Handlers.CrossCutting.Utils;
+using Server.Main.Reactor.Handlers.CrossCutting.Exceptions;
+using Server.Main.Reactor.Handlers.Domain;
 using Server.Main.Reactor.Models.Enums;
 using Server.Main.Reactor.Models.Request.Transactions;
 using Server.Main.Reactor.Models.Response;
+using Server.Main.Reactor.Utils;
 
 namespace Server.Main.Reactor.Handlers.Business.Transactions;
 
@@ -17,23 +19,18 @@ public class SettlementHandler : Handler<UpdateTransactionRequest>
   private static readonly ILog Logger = LogManager.GetLogger(typeof(SettlementHandler));
   private readonly TransactionDomainHandler _transactionDomainHandler;
   private readonly TransactionDetailsDomainHandler _transactionDetailsDomainHandler;
+  private readonly TransactionConfig _transactionConfig;
 
-  private readonly List<string> _validStatusList;
-
-  public SettlementHandler(TransactionDomainHandler transactionDomainHandler, TransactionDetailsDomainHandler transactionDetailsDomainHandler)
+  public SettlementHandler(TransactionDomainHandler transactionDomainHandler, TransactionDetailsDomainHandler transactionDetailsDomainHandler, TransactionConfig transactionConfig)
   {
     _transactionDomainHandler = transactionDomainHandler;
     _transactionDetailsDomainHandler = transactionDetailsDomainHandler;
-    _validStatusList =
-    [
-      TransactionStatus.Pending.ToString(),
-      TransactionStatus.Authorized.ToString()
-    ];
+    _transactionConfig = transactionConfig;
   }
 
   public override IObservable<JsonResult> Handle(UpdateTransactionRequest request)
   {
-    return ExecCompute(request)
+    return HandleComputeEvent(request)
       .SelectMany(HandleValidation)
       .SelectMany(HandleExternalConfirmation)
       .SelectMany(CompleteSettlement)
@@ -47,7 +44,7 @@ public class SettlementHandler : Handler<UpdateTransactionRequest>
 
     // TODO: Implement external confirmation logic to call PayFast API transaction confirmation.
     Logger.Debug($"SettlementHandler@HandleExternalConfirmation initiated for TransactionId: {request.TransactionId}");
-    return null;
+    return Observable.Return(request);
   }
 
   public IObservable<TransactionsDto> HandlePartyNotifications(TransactionsDto request)
@@ -56,7 +53,7 @@ public class SettlementHandler : Handler<UpdateTransactionRequest>
     // This could involve calling a notification service or sending messages to a message queue.
     // For now, we return null to indicate that this part is not yet implemented.
     // Example: return _notificationService.SendTransactionNotification(request);
-    return null;
+    return Observable.Return(request);
   }
 
   public IObservable<TransactionsDto> CompleteSettlement(UpdateTransactionRequest request)
@@ -69,16 +66,17 @@ public class SettlementHandler : Handler<UpdateTransactionRequest>
   {
     return _transactionDomainHandler
     .SelectTransactionById(request.TransactionId)
+    .Select(transaction => new TransactionsDto() { Status = TransactionStatus.Pending.ToString() })
     .Select(transaction =>
     {
       if (transaction == null)
       {
-        throw new InvalidOperationException("Transaction not found.");
+        throw new StandardException("Transaction not found.");
       }
 
-      if (_validStatusList.Contains(request.Status) == false)
+      if (_transactionConfig.AllowedSettlementStatuses.Contains(request.Status) == false)
       {
-        throw new InvalidOperationException($"Invalid transaction status: {request.Status}.");
+        throw new StandardException($"Invalid transaction status: {request.Status}.");
       }
       return request;
     });

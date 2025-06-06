@@ -4,7 +4,7 @@ using log4net;
 using Microsoft.AspNetCore.Mvc;
 using static System.Text.Json.Serialization.JsonIgnoreCondition;
 
-namespace Server.Main.Reactor.Handlers.CrossCutting.Utils;
+namespace Server.Main.Reactor.Utils;
 
 public class ContentResultUtil
 {

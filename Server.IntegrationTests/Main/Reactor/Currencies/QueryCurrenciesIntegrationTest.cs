@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Reactive.Linq;
@@ -24,7 +25,7 @@ public class QueryCurrenciesIntegrationTest
   {
     var configuration = new ConfigurationBuilder()
         .SetBasePath(AppContext.BaseDirectory)
-        .AddJsonFile("Infrastructure/Configuration/application.Development.json", optional: false, reloadOnChange: true)
+        .AddYamlFile("Infrastructure/Configuration/application.Development.yaml", optional: false, reloadOnChange: true)
         .Build();
 
     _connectionString = configuration.GetConnectionString("FinanceDatabase");

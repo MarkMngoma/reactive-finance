@@ -8,7 +8,7 @@ public abstract class Handler<R>
 {
   public abstract IObservable<JsonResult> Handle(R request);
 
-  public IObservable<R> ExecCompute(R request)
+  public IObservable<R> HandleComputeEvent(R request)
   {
     return Observable.Using(() => new EventLoopScheduler(), eventLoopScheduler =>
         Observable.Return(request)
@@ -19,7 +19,7 @@ public abstract class Handler<R>
       );
   }
 
-  public IObservable<T> ExecCompute<T>(IObservable<T> source)
+  public IObservable<T> HandleComputeEvent<T>(IObservable<T> source)
   {
       return Observable.Using(() => new EventLoopScheduler(), eventLoopScheduler => source
         .Retry(3)

@@ -2,8 +2,8 @@ using System.Reactive.Linq;
 using System.Text.Json;
 using log4net;
 using Microsoft.AspNetCore.Mvc;
-using Server.Main.Reactor.Domain;
 using Server.Main.Reactor.Handlers.CrossCutting;
+using Server.Main.Reactor.Handlers.Domain;
 using Server.Main.Reactor.Models.Request;
 
 namespace Server.Main.Reactor.Handlers.Business.Finance;
@@ -24,7 +24,7 @@ public class WriteBatchCurrenciesHandler : Handler<BatchCurrencyRequest>
   public override IObservable<JsonResult> Handle(BatchCurrencyRequest request)
   {
     Logger.Debug($"WriteBatchCurrenciesHandler@Handle initiated with request size #{request.BatchCurrencies.Count}");
-    return ExecCompute(request)
+    return HandleComputeEvent(request)
       .SelectMany(_currencyDomainHandler.InsertBatchCurrencyRecords)
       .SelectMany(_ => _currencyDomainHandler.DeleteCurrencyRecords())
       .Do(dataResult => Logger.Debug($"WriteBatchCurrenciesHandler@Handle domain result :: {JsonSerializer.Serialize(dataResult)}"))

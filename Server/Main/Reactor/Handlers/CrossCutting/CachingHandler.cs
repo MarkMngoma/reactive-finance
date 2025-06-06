@@ -1,0 +1,47 @@
+using System.Reactive.Linq;
+using System.Text.Json;
+using Hazelcast;
+
+namespace Server.Main.Reactor.Handlers.CrossCutting;
+
+public class CachingHandler
+{
+
+  private readonly IHazelcastClient _hazelcastClient;
+
+  public CachingHandler(IHazelcastClient hazelcastClient)
+  {
+    _hazelcastClient = hazelcastClient;
+  }
+
+  public IObservable<T> HandleWrite<T>(string index, string key, T value)
+  {
+    return Observable.FromAsync(async () =>
+    {
+      var map = await _hazelcastClient.GetMapAsync<string, byte[]>(index);
+      var bytes = JsonSerializer.SerializeToUtf8Bytes(value);
+      await map.SetAsync(key, bytes);
+      return value;
+    });
+  }
+
+  public IObservable<T?> HandleGet<T>(string index, string key)
+  {
+    return Observable.FromAsync(async () =>
+    {
+      var map = await _hazelcastClient.GetMapAsync<string, byte[]>(index);
+      var bytes = await map.GetAsync(key);
+      return bytes == null ? default : JsonSerializer.Deserialize<T>(bytes);
+    });
+  }
+
+  public IObservable<T> HandleEviction<T>(string index, string key, T value)
+  {
+    return Observable.FromAsync(async () =>
+    {
+      var map = await _hazelcastClient.GetMapAsync<string, byte[]>(index);
+      await map.DeleteAsync(key);
+      return value;
+    });
+  }
+}

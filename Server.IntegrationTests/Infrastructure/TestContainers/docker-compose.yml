@@ -8,3 +8,46 @@ services:
       MARIADB_PASSWORD: mdn9VBYldGcmLo01lt5Y3lpQqeE=
     ports:
       - "60339:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  hazelcast:
+    image: hazelcast/hazelcast:5.5.0
+    ports:
+      - "5701:5701"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5701/hazelcast/health/node-state"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  nats:
+    image: nats:latest
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    command: "--js --store_dir /data"
+    volumes:
+      - nats-data:/data
+    healthcheck:
+      test: ["CMD", "nats", "ping"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+
+  management-center:
+    image: hazelcast/management-center:5.5.0
+    ports:
+      - "8080:8080"
+    environment:
+      - MC_INIT_CMD=./bin/mc-conf.sh cluster add --client-config=/data/hazelcast-client.yaml --cluster-name=dev
+    depends_on:
+      - hazelcast
+
+volumes:
+  nats-data:
+    driver: local
