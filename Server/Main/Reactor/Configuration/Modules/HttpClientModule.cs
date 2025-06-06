@@ -7,7 +7,7 @@ public static class HttpClientModule
 {
   public static void Configure(IServiceCollection services)
   {
-    services.AddSingleton<BasePayFastHttpClient, FxHttpClient>();
+    services.AddSingleton<BaseHttpClient, FxHttpClient>();
     services.AddSingleton<FxHttpClient>();
   }
 }
