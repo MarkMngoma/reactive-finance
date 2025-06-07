@@ -6,33 +6,37 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Dapper;
-using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 using MySql.Data.MySqlClient;
+using NUnit.Framework;
 using Server.Main.Reactor;
 using Server.Main.Reactor.Models.Request;
-using Xunit;
 
 namespace Server.IntegrationTests.Main.Reactor.Currencies;
 
-public class WriteCurrenciesIntegrationTest : IClassFixture<WebApplicationFactory<Program>>, IDisposable
+[TestFixture]
+public class WriteCurrenciesIntegrationTest
 {
-  private readonly string _connectionString;
-  private readonly HttpClient _testHttpClient;
+  private string _connectionString;
+  private HttpClient _testHttpClient;
+  private WebApplicationFactory<Program> _factory;
 
-  public WriteCurrenciesIntegrationTest(WebApplicationFactory<Program> factory)
+  [SetUp]
+  public void OneTimeSetUp()
   {
     var configuration = new ConfigurationBuilder()
       .SetBasePath(AppContext.BaseDirectory)
-      .AddJsonFile("Infrastructure/Configuration/application.Development.json", optional: false, reloadOnChange: true)
+      .AddYamlFile("Infrastructure/Configuration/config.development.yaml", optional: false, reloadOnChange: true)
       .Build();
 
     _connectionString = configuration.GetConnectionString("FinanceDatabase");
-    _testHttpClient = factory.CreateClient();
+
+    _factory = new WebApplicationFactory<Program>();
+    _testHttpClient = _factory.CreateClient();
   }
 
-  [Fact]
+  [Test]
   public async Task GivenClientRequestsExistingCurrencyWhenClientPostsExistingRandsThenFailCreationAsUnprocessableEntity()
   {
     // Given --  ZAR already exists as an entry
@@ -56,13 +60,13 @@ public class WriteCurrenciesIntegrationTest : IClassFixture<WebApplicationFactor
       "application/json"
     );
 
-    var response = await _testHttpClient.PostAsync("/v1/WriteCurrencyResource", content);
+    var response = await _testHttpClient.PostAsync("/v1/writeCurrencyResource", content);
 
     // Then -- ensure result contains the expected status code
-    Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+    Assert.That(HttpStatusCode.UnprocessableEntity, Is.EqualTo(response.StatusCode));
   }
 
-  [Fact]
+  [Test]
   public async Task GivenClientRequestsNewCurrencyWhenClientPostsNewSwissCurrencyThenVerifyCreationAsCreatedSuccessfully()
   {
     // Given -- party requests for CHF creation
@@ -83,12 +87,12 @@ public class WriteCurrenciesIntegrationTest : IClassFixture<WebApplicationFactor
       "application/json"
     );
 
-    var response = await _testHttpClient.PostAsync("/v1/WriteCurrencyResource", content);
+    var response = await _testHttpClient.PostAsync("/v1/writeCurrencyResource", content);
 
     // Then -- ensure result contains the created status code
-    Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    Assert.That(HttpStatusCode.OK, Is.EqualTo(response.StatusCode));
 
-    var queryResponse = await _testHttpClient.GetAsync($"/v1/QueryCurrencyResource/{expectedCurrencyCode}");
+    var queryResponse = await _testHttpClient.GetAsync($"/v1/queryCurrencyResource/{expectedCurrencyCode}");
 
     // Then -- ensure success result contains desired entry
     queryResponse.EnsureSuccessStatusCode();
@@ -98,11 +102,11 @@ public class WriteCurrenciesIntegrationTest : IClassFixture<WebApplicationFactor
       PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     });
 
-    Assert.Equal(756, responsePayload.CurrencyId);
-    responsePayload.CurrencyCode.Should().Match(expectedCurrencyCode);
+    Assert.That(756, Is.EqualTo(responsePayload.CurrencyId));
+    Assert.That(expectedCurrencyCode, Is.EqualTo(responsePayload.CurrencyCode));
   }
 
-  [Fact]
+  [Test]
   public async Task GivenClientRequestsNewCurrenciesWhenClientPostsBatchCurrenciesThenVerifyCreationAsCreatedSuccessfully()
   {
     // Given -- party requests for batch creation
@@ -111,10 +115,10 @@ public class WriteCurrenciesIntegrationTest : IClassFixture<WebApplicationFactor
     // When -- posting the currency entry
     var content = new StringContent(jsonBatchContent, Encoding.UTF8, "application/json");
 
-    var response = await _testHttpClient.PostAsync("/v1/WriteCurrencyResource/Batch", content);
+    var response = await _testHttpClient.PostAsync("/v1/writeCurrencyResource/Batch", content);
 
     // Then -- ensure result contains the created status code
-    Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    Assert.That(HttpStatusCode.OK, Is.EqualTo(response.StatusCode));
   }
 
   private async Task SimulateExistingSouthAfricanRand()
@@ -137,12 +141,15 @@ public class WriteCurrenciesIntegrationTest : IClassFixture<WebApplicationFactor
       "application/json"
     );
 
-    await _testHttpClient.PostAsync("/v1/WriteCurrencyResource", content);
+    await _testHttpClient.PostAsync("/v1/writeCurrencyResource", content);
   }
 
-  public void Dispose()
+  [TearDown]
+  public void OneTimeTearDown()
   {
-    _testHttpClient.Dispose();
+    _testHttpClient?.Dispose();
+    _factory?.Dispose();
+
     var connection = new MySqlConnection(_connectionString);
     Observable.FromAsync(() => connection.OpenAsync())
       .SelectMany(_ => Observable.FromAsync(() => connection.ExecuteAsync("DELETE FROM dboFinance.CURRENCIES WHERE CURRENCY_ID IS NOT NULL")))
@@ -150,7 +157,7 @@ public class WriteCurrenciesIntegrationTest : IClassFixture<WebApplicationFactor
       .Wait();
   }
 
-  private String JsonBatchContent()
+  private static string JsonBatchContent()
   {
     return """
            {

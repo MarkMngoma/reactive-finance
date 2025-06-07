@@ -1,13 +1,18 @@
+using log4net;
 using Microsoft.AspNetCore.Mvc;
 using Server.Main.Reactor.Handlers.CrossCutting;
 using Server.Main.Reactor.Models.Request.Subscriptions;
 
 namespace Server.Main.Reactor.Handlers.Business.Subscriptions;
 
-public class DeleteSubscriptionHandler : IHandler<DeleteSubscriptionRequest>
+public class DeleteSubscriptionHandler : Handler<DeleteSubscriptionRequest>
 {
-  public IObservable<JsonResult> Handle(DeleteSubscriptionRequest request)
+
+  private static readonly ILog Logger = LogManager.GetLogger(typeof(DeleteSubscriptionHandler));
+
+  public override IObservable<JsonResult> Handle(DeleteSubscriptionRequest request)
   {
+    Logger.Info($"Handling DeleteSubscriptionRequest for SubscriptionId: {request.SubscriptionId}");
     throw new NotImplementedException();
   }
 }

@@ -1,35 +1,33 @@
-using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Text.Json;
 using log4net;
 using Microsoft.AspNetCore.Mvc;
-using Server.Main.Reactor.Domain;
 using Server.Main.Reactor.Handlers.CrossCutting;
+using Server.Main.Reactor.Handlers.Domain;
 using Server.Main.Reactor.Models.Request;
 
 namespace Server.Main.Reactor.Handlers.Business.Finance;
 
-public class WriteBatchCurrenciesHandler : IHandler<BatchCurrencyRequest>
+public class WriteBatchCurrenciesHandler : Handler<BatchCurrencyRequest>
 {
   private static readonly ILog Logger = LogManager.GetLogger(typeof(QueryCurrenciesHandler));
 
-  private readonly CurrencyDao _currencyDao;
-  private readonly QueryCurrenciesHandler _handler;
+  private readonly CurrencyDomainHandler _currencyDomainHandler;
+  private readonly QueryCurrenciesHandler _queryCurrenciesHandler;
 
-  public WriteBatchCurrenciesHandler(CurrencyDao currencyDao, QueryCurrenciesHandler handler)
+  public WriteBatchCurrenciesHandler(CurrencyDomainHandler currencyDomainHandler, QueryCurrenciesHandler queryCurrenciesHandler)
   {
-    _currencyDao = currencyDao;
-    _handler = handler;
+    _currencyDomainHandler = currencyDomainHandler;
+    _queryCurrenciesHandler = queryCurrenciesHandler;
   }
 
-  public IObservable<JsonResult> Handle(BatchCurrencyRequest request)
+  public override IObservable<JsonResult> Handle(BatchCurrencyRequest request)
   {
-    Logger.Debug($"WriteBatchCurrenciesHandler@Handle initiated with request size #{request.BatchCurrencies.Count}");
-    return _currencyDao.InsertBatchCurrencyRecords(request)
-      .Timeout(TimeSpan.FromMilliseconds(2000))
-      .Do(dataResult => Logger.Debug($"WriteBatchCurrenciesHandler@Handle domain result :: {JsonSerializer.Serialize(dataResult)}"))
-      .SelectMany(_ => _handler.QueryCollectiveCurrencies())
-      .Finally(() => Logger.Info($"SubscribedOn: {Thread.CurrentThread.Name}"))
-      .SubscribeOn(new EventLoopScheduler());
+    Logger.Info($"WriteBatchCurrenciesHandler@Handle initiated with request size #{request.BatchCurrencies.Count}");
+    return HandleComputeEvent(request)
+      .SelectMany(_currencyDomainHandler.InsertBatchCurrencyRecords)
+      .SelectMany(_ => _currencyDomainHandler.DeleteCurrencyRecords())
+      .Do(dataResult => Logger.Info($"WriteBatchCurrenciesHandler@Handle domain result :: {JsonSerializer.Serialize(dataResult)}"))
+      .SelectMany(_ => _queryCurrenciesHandler.HandleCurrencyListQuery());
   }
 }

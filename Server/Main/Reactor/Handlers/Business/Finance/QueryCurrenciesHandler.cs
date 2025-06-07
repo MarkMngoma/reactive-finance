@@ -1,58 +1,50 @@
-using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Text.Json;
 using log4net;
 using Microsoft.AspNetCore.Mvc;
 using Server.Main.Reactor.Clients;
-using Server.Main.Reactor.Domain;
 using Server.Main.Reactor.Handlers.CrossCutting;
+using Server.Main.Reactor.Handlers.Domain;
+using Server.Main.Reactor.Utils;
 
 namespace Server.Main.Reactor.Handlers.Business.Finance;
 
-public class QueryCurrenciesHandler
+public class QueryCurrenciesHandler : Handler<string>
 {
   private static readonly ILog Logger = LogManager.GetLogger(typeof(QueryCurrenciesHandler));
 
   private readonly FxHttpClient _fxHttpClient;
-  private readonly CurrencyDao _currencyDao;
+  private readonly CurrencyDomainHandler _currencyDomainHandler;
 
-  public QueryCurrenciesHandler(FxHttpClient fxHttpClient, CurrencyDao currencyDao)
+  public QueryCurrenciesHandler(FxHttpClient fxHttpClient, CurrencyDomainHandler currencyDomainHandler)
   {
     _fxHttpClient = fxHttpClient;
-    _currencyDao = currencyDao;
+    _currencyDomainHandler = currencyDomainHandler;
   }
 
-  public IObservable<JsonResult> QueryPartyExchangeRates()
-  {
-    Logger.Info("QueryCurrenciesHandler@QueryPartyExchangeRates initiated...");
-    return _fxHttpClient.QueryExternalPartyExchangeRates()
-      .Do(dto => Logger.Debug($"QueryCurrenciesHandler@QueryPartyExchangeRates preparing response :: {dto}"))
-      .SelectMany(ContentResultUtil.Render)
-      .SubscribeOn(new EventLoopScheduler());
-  }
-
-  public IObservable<JsonResult> QueryCollectiveCurrencies()
-  {
-    Logger.Info("QueryCurrenciesHandler@QueryCollectiveCurrencies initiated...");
-    return _currencyDao.SelectEnumerableCurrencies()
-      .Retry(3)
-      .Timeout(TimeSpan.FromMilliseconds(2000))
-      .Do(dataResult => Logger.Debug($"QueryCurrenciesHandler@QueryCollectiveCurrencies domain result :: {dataResult.ToList().Count}"))
-      .SelectMany(ContentResultUtil.Render)
-      .Finally(() => Logger.Info($"SubscribedOn: {Thread.CurrentThread.Name}"))
-      .SubscribeOn(new EventLoopScheduler());
-  }
-
-  public IObservable<JsonResult> QueryCurrencyUsingCurrencyCode(string currencyCode)
+  public override IObservable<JsonResult> Handle(string currencyCode)
   {
     Logger.Info($"QueryCurrenciesHandler@QueryCurrencyUsingCurrencyCode initiated for :: {currencyCode}");
-    return _currencyDao.SelectCurrencyUsingCode(currencyCode)
-      .Retry(3)
-      .Timeout(TimeSpan.FromMilliseconds(2000))
-      .Do(dataResult => Logger.Debug($"QueryCurrenciesHandler@QueryCurrencyUsingCurrencyCode domain result :: {JsonSerializer.Serialize(dataResult)}"))
-      .SelectMany(ContentResultUtil.Render)
-      .Finally(() => Logger.Info($"SubscribedOn: {Thread.CurrentThread.Name}"))
-      .SubscribeOn(new EventLoopScheduler());
+    return HandleComputeEvent(currencyCode)
+      .SelectMany(_currencyDomainHandler.SelectCurrencyUsingCode)
+      .Do(dataResult => Logger.Info($"QueryCurrenciesHandler@QueryCurrencyUsingCurrencyCode domain result :: {JsonSerializer.Serialize(dataResult)}"))
+      .Select(ContentResultUtil.Render);
+  }
+
+  public IObservable<JsonResult> HandlePartyExchangeRatesQuery(string quoteCurrency)
+  {
+    Logger.Info("QueryCurrenciesHandler@HandlePartyExchangeRatesQuery initiated...");
+    return _fxHttpClient.QueryExternalPartyExchangeRates(quoteCurrency)
+      .Do(dto => Logger.Info($"QueryCurrenciesHandler@HandlePartyExchangeRatesQuery preparing response :: {dto}"))
+      .Select(ContentResultUtil.Render);
+  }
+
+  public IObservable<JsonResult> HandleCurrencyListQuery()
+  {
+    Logger.Info("QueryCurrenciesHandler@HandleCurrencyListQuery initiated...");
+    return HandleComputeEvent(_currencyDomainHandler.SelectEnumerableCurrencies())
+      .Do(dataResult => Logger.Info($"QueryCurrenciesHandler@HandleCurrencyListQuery domain result :: {dataResult.ToList().Count}"))
+      .Select(ContentResultUtil.Render);
   }
 
 }

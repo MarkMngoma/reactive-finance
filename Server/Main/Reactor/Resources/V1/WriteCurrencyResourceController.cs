@@ -3,13 +3,14 @@ using System.Reactive.Threading.Tasks;
 using log4net;
 using Microsoft.AspNetCore.Mvc;
 using Server.Main.Reactor.Handlers.Business.Finance;
-using Server.Main.Reactor.Handlers.CrossCutting;
 using Server.Main.Reactor.Models.Request;
+using Server.Main.Reactor.Utils;
 
 namespace Server.Main.Reactor.Resources.V1;
 
 [ApiController]
-[Route("v1/[controller]")]
+[ApiExplorerSettings(GroupName = "v1")]
+[Route("v1/writeCurrencyResource")]
 [Produces("application/json")]
 public class WriteCurrencyResourceController : ControllerBase
 {
@@ -34,7 +35,7 @@ public class WriteCurrencyResourceController : ControllerBase
   }
 
   [HttpPost]
-  [Route("Batch")]
+  [Route("batch")]
   public Task<IActionResult> CreateNewBatchCurrencies([FromBody] BatchCurrencyRequest batchCurrencyDto)
   {
     Logger.Info("WriteCurrencyResourceController@CreateNewBatchCurrencies initiated...");

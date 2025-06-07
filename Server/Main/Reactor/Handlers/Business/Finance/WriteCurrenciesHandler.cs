@@ -1,36 +1,48 @@
-using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Text.Json;
 using log4net;
 using Microsoft.AspNetCore.Mvc;
-using Server.Main.Reactor.Domain;
 using Server.Main.Reactor.Handlers.CrossCutting;
+using Server.Main.Reactor.Handlers.CrossCutting.Exceptions;
+using Server.Main.Reactor.Handlers.Domain;
 using Server.Main.Reactor.Models.Request;
+using Server.Main.Reactor.Utils;
 
 namespace Server.Main.Reactor.Handlers.Business.Finance;
 
-public class WriteCurrenciesHandler : IHandler<CurrencyRequest>
+public class WriteCurrenciesHandler : Handler<CurrencyRequest>
 {
   private static readonly ILog Logger = LogManager.GetLogger(typeof(QueryCurrenciesHandler));
 
-  private readonly CurrencyDao _currencyDao;
-  private readonly QueryCurrenciesHandler _handler;
+  private readonly CurrencyDomainHandler _currencyDomainHandler;
 
-  public WriteCurrenciesHandler(CurrencyDao currencyDao, QueryCurrenciesHandler handler)
+  public WriteCurrenciesHandler(CurrencyDomainHandler _currencyDomainHandler)
   {
-    _currencyDao = currencyDao;
-    _handler = handler;
+    this._currencyDomainHandler = _currencyDomainHandler;
   }
 
-  public IObservable<JsonResult> Handle(CurrencyRequest request)
+  public override IObservable<JsonResult> Handle(CurrencyRequest request)
   {
-    return _currencyDao.InsertCurrencyRecord(request)
-      .Select(_ => request)
-      .Timeout(TimeSpan.FromMilliseconds(2000))
-      .SelectMany(_ => _currencyDao.SelectCurrencyUsingCode(request.CurrencyCode))
+    Logger.Debug($"WriteCurrenciesHandler@Handle initiated...");
+    return HandleComputeEvent(request)
+      .SelectMany(HandleDuplicateEntryCheck)
+      .SelectMany(_currencyDomainHandler.InsertCurrencyRecord)
+      .SelectMany(_ => _currencyDomainHandler.SelectCurrencyUsingCode(request.CurrencyCode))
       .Do(dataResult => Logger.Debug($"WriteCurrenciesHandler@Handle domain result :: {JsonSerializer.Serialize(dataResult)}"))
-      .SelectMany(ContentResultUtil.Render)
-      .Finally(() => Logger.Info($"SubscribedOn: {Thread.CurrentThread.Name}"))
-      .SubscribeOn(new EventLoopScheduler());
+      .Select(ContentResultUtil.Render);
+  }
+
+  private IObservable<CurrencyRequest> HandleDuplicateEntryCheck(CurrencyRequest request)
+  {
+    return _currencyDomainHandler.SelectCurrencyUsingCode(request.CurrencyCode)
+      .Select(existingCurrency =>
+      {
+        if (existingCurrency != null)
+        {
+          Logger.Warn($"WriteCurrenciesHandler@HandleDuplicateEntryCheck: Currency with code {request.CurrencyCode} already exists.");
+          throw new StandardException($"Currency with code {request.CurrencyCode} already exists.");
+        }
+        return request;
+      });
   }
 }

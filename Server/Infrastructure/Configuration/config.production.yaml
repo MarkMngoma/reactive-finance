@@ -1,0 +1,39 @@
+Logging:
+  LogLevel:
+    Default: Information
+    Microsoft: Information
+    Microsoft.Hosting.Lifetime: Information
+
+ConnectionStrings:
+  FinanceDatabase: "Host=db;Port=3306;User=dboFinance;Password=mdn9VBYldGcmLo01lt5Y3lpQqeE=;Database=dboFinance;SslMode=None"
+
+ApplicationInsights:
+  ConnectionString: "InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint=https://westus2-0.in.applicationinsights.azure.com/"
+
+IntegrationsConfig:
+  PayFast:
+    MerchantId: 12345678
+    MerchantKey: "abcdefghijklmnop"
+    Passphrase: "zyxwvutsrqponmlkjihgfedcba"
+    JsonApiBaseUrl: "https://api.payfast.co.za/v1"
+    FormApiBaseUrl: "https://www.payfast.co.za"
+    ReturnUrl: "https://google.com"
+    CancelUrl: "https://google.com"
+    NotifyUrl: "/v1/TransactionResource/Settlement/{transactionId}"
+
+Hazelcast:
+  ServerAddress: "hazelcast:5701"
+
+TransactionConfig:
+  AllowedSettlementStatuses:
+    - "Pending"
+    - "Authorised"
+
+ForexConfig:
+  BaseCurrency: "ZAR"
+  SupportedCurrencies:
+    - "USD"
+    - "EUR"
+    - "GBP"
+    - "JPY"
+  ExchangeRatesApiUrl: "https://latest.currency-api.pages.dev/v1/currencies"
