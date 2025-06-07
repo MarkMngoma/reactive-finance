@@ -23,7 +23,9 @@ public static class MiddlewareModule
       app.UseSwagger();
       app.UseSwaggerUI(c =>
       {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Reactor API V1");
+        c.ShowCommonExtensions();
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Subscription Reactor API V1");
+        c.SwaggerEndpoint("/swagger/v2/swagger.json", "Subscription Reactor API V2");
         c.RoutePrefix = string.Empty;
       });
     }

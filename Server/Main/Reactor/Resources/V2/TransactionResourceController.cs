@@ -6,11 +6,11 @@ using Server.Main.Reactor.Handlers.Business.Transactions;
 using Server.Main.Reactor.Models.Request.Transactions;
 using Server.Main.Reactor.Utils;
 
-namespace Server.Main.Reactor.Resources.V1;
+namespace Server.Main.Reactor.Resources.V2;
 
 [ApiController]
-[ApiExplorerSettings(GroupName = "v1")]
-[Route("v1/transactionResource")]
+[ApiExplorerSettings(GroupName = "v2")]
+[Route("v2/transactionResource")]
 [Produces("application/json")]
 public class TransactionResourceController : ControllerBase
 {
@@ -70,6 +70,4 @@ public class TransactionResourceController : ControllerBase
       .Catch<IActionResult, Exception>(ex => ContentResultUtil.Throw(ex, StatusCodes.Status422UnprocessableEntity))
       .ToTask();
   }
-
 }
-

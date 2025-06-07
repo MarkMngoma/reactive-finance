@@ -8,7 +8,8 @@ using Server.Main.Reactor.Utils;
 namespace Server.Main.Reactor.Resources.V1;
 
 [ApiController]
-[Route("v1/[controller]")]
+[ApiExplorerSettings(GroupName = "v1")]
+[Route("v1/financialResource")]
 [Produces("application/json")]
 public class FinancialResourceController : ControllerBase
 {

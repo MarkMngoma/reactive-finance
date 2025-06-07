@@ -46,9 +46,16 @@ public static class ServerModule
       options.SwaggerDoc("v1", new OpenApiInfo
       {
         Version = "v1",
-        Title = "Reactor API V1",
-        Description = "An ASP.NET Core Web API for managing ToDo items"
+        Title = "Subscription Reactor API V1",
+        Description = "REST API for managing financial product subscriptions and transactions"
       });
+      options.SwaggerDoc("v2", new OpenApiInfo
+      {
+        Version = "v2",
+        Title = "Subscription Reactor API V2",
+        Description = "REST API for managing financial product subscriptions and transactions"
+      });
+      options.ResolveConflictingActions(apiDescriptions => apiDescriptions.First());
     });
   }
 

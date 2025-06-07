@@ -20,27 +20,27 @@ public class TransactionDomainHandler
     _queryFactory = queryFactory;
   }
 
-  public IObservable<int> InsertTransaction(CreateTransactionRequest request)
+  public IObservable<int> InsertTransaction(CreateTransactionRequest request, ulong subscriptionId)
   {
-    var record = new TransactionRecordBuilder()
-      .WithAmount(request.Amount)
-      .WithType(request.Type)
-      .WithCurrency("ZAR")
-      .WithStatus(Models.Enums.TransactionStatus.Pending.ToString())
-      .WithTransactionDate(DateTime.UtcNow)
-      .WithDescription(request.Description ?? "Subscription Payment")
-      //.WithSubscriptionId(request.SubscriptionId)
-      .WithCreatedAt(DateTime.UtcNow)
-      .Build();
     return Observable.FromAsync(() => _queryFactory
       .Query(TableName)
-      .InsertAsync(record))
+      .InsertAsync(new TransactionRecordBuilder()
+        .WithAmount(request.Amount)
+        .WithType(request.Type)
+        .WithCurrency("ZAR")
+        .WithStatus(Models.Enums.TransactionStatus.Pending.ToString())
+        .WithTransactionDate(DateTime.UtcNow)
+        .WithDescription(request.Description ?? "Subscription Payment")
+        .WithSubscriptionId(subscriptionId)
+        .WithCreatedAt(DateTime.UtcNow)
+        .Build())
+      )
       .SubscribeOn(TaskPoolScheduler.Default);
   }
 
   public IObservable<TransactionsDto> UpdateTransaction(UpdateTransactionRequest request)
   {
-    return SelectTransactionById(request.TransactionId)
+    return SelectTransactionUsingTransactionId(request.TransactionId)
       .Do(existingTransaction =>
       {
         if (existingTransaction.TransactionId == null)
@@ -55,21 +55,55 @@ public class TransactionDomainHandler
         return existingRecord;
       })
       .SelectMany(record => _queryFactory.Query(TableName).UpdateAsync(record))
-      .SelectMany(_ => SelectTransactionById(request.TransactionId))
+      .SelectMany(_ => SelectTransactionUsingTransactionId(request.TransactionId))
       .SubscribeOn(TaskPoolScheduler.Default);
   }
 
-  public IObservable<TransactionsDto> SelectTransactionById(string? searchId)
+  public IObservable<IEnumerable<TransactionsDto>> SelectTransactionsUsingId(ulong id)
   {
     return Observable.FromAsync(() =>
-        _queryFactory.Query(TableName)
-          .Select(TransactionId, SubscriptionId, TransactionsTable.Type, Amount, Currency, Status, AuthorizationId, TransactionDate, Description)
-          .Where(TransactionId, searchId)
-          .OrWhere(SubscriptionId, searchId)
-          .OrWhere(AuthorizationId, searchId)
-          .OrWhere(Id, searchId)
-          .FirstOrDefaultAsync<TransactionsDto>()
-      )
-      .SubscribeOn(TaskPoolScheduler.Default);
+       _queryFactory.Query(TableName)
+         .Select(TransactionId, TransactionsTable.Type, Currency, Amount, Description, Status, AuthorizationId, SubscriptionId, TransactionDate)
+         .Where(Id, id)
+         .OrWhere(AuthorizationId, id)
+         .Limit(2)
+         .GetAsync<TransactionsDto>()
+     )
+     .SubscribeOn(TaskPoolScheduler.Default);
+  }
+
+  public IObservable<TransactionsDto> SelectSettlementTransactionUsingId(ulong id)
+  {
+    return Observable.FromAsync(() =>
+       _queryFactory.Query(TableName)
+         .Select(TransactionId, TransactionsTable.Type, Currency, Amount, Description, Status, AuthorizationId, SubscriptionId, TransactionDate)
+         .Where(AuthorizationId, id)
+         .Limit(1)
+         .FirstOrDefaultAsync<TransactionsDto>()
+     )
+     .SubscribeOn(TaskPoolScheduler.Default);
+  }
+
+  public IObservable<IEnumerable<TransactionsDto>> SelectTransactionsUsingTransactionId(string? id)
+  {
+    return Observable.FromAsync(() =>
+       _queryFactory.Query(TableName)
+         .Select(TransactionId, TransactionsTable.Type, Currency, Amount, Description, Status, AuthorizationId, SubscriptionId, TransactionDate)
+         .Where(TransactionId, id)
+         .GetAsync<TransactionsDto>()
+     )
+     .SubscribeOn(TaskPoolScheduler.Default);
+  }
+
+  public IObservable<TransactionsDto> SelectTransactionUsingTransactionId(string? id)
+  {
+    return Observable.FromAsync(() =>
+       _queryFactory.Query(TableName)
+         .Select(TransactionId, TransactionsTable.Type, Currency, Amount, Description, Status, AuthorizationId, SubscriptionId, TransactionDate)
+         .Where(TransactionId, id)
+         .Limit(1)
+         .FirstOrDefaultAsync<TransactionsDto>()
+     )
+     .SubscribeOn(TaskPoolScheduler.Default);
   }
 }

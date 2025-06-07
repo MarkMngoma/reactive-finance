@@ -28,10 +28,10 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <EmbeddedResource Include="Infrastructure/Configuration/*.yaml" />
-    <Content Include="Infrastructure/Configuration/application.Development.yaml" />
-    <Content Include="Infrastructure/Configuration/application.Production.yaml" />
+    <Content Include="Infrastructure/Configuration/config.development.yaml" />
+    <Content Include="Infrastructure/Configuration/config.production.yaml" />
     <Folder Include="Main\Reactor\Builders\Tables\Generated\" />
-    <None Update="Infrastructure/Configuration/application.*.yaml">
+    <None Update="Infrastructure/Configuration/config.*.yaml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

@@ -18,148 +18,148 @@ namespace Server.IntegrationTests.Main.Reactor.Currencies;
 [TestFixture]
 public class WriteCurrenciesIntegrationTest
 {
-    private string _connectionString;
-    private HttpClient _testHttpClient;
-    private WebApplicationFactory<Program> _factory;
+  private string _connectionString;
+  private HttpClient _testHttpClient;
+  private WebApplicationFactory<Program> _factory;
 
-    [SetUp]
-    public void OneTimeSetUp()
+  [SetUp]
+  public void OneTimeSetUp()
+  {
+    var configuration = new ConfigurationBuilder()
+      .SetBasePath(AppContext.BaseDirectory)
+      .AddYamlFile("Infrastructure/Configuration/config.development.yaml", optional: false, reloadOnChange: true)
+      .Build();
+
+    _connectionString = configuration.GetConnectionString("FinanceDatabase");
+
+    _factory = new WebApplicationFactory<Program>();
+    _testHttpClient = _factory.CreateClient();
+  }
+
+  [Test]
+  public async Task GivenClientRequestsExistingCurrencyWhenClientPostsExistingRandsThenFailCreationAsUnprocessableEntity()
+  {
+    // Given --  ZAR already exists as an entry
+    await SimulateExistingSouthAfricanRand();
+
+    // Given -- party requests for ZAR creation
+    var expectedCurrencyCode = "ZAR";
+    var currencyDto = new CurrencyRequest
     {
-        var configuration = new ConfigurationBuilder()
-          .SetBasePath(AppContext.BaseDirectory)
-          .AddYamlFile("Infrastructure/Configuration/application.Development.yaml", optional: false, reloadOnChange: true)
-          .Build();
+      CurrencyCode = expectedCurrencyCode,
+      CurrencyId = 710,
+      CurrencyName = "South African Rand",
+      CurrencySymbol = "R",
+      CurrencyFlag = "🇿🇦"
+    };
 
-        _connectionString = configuration.GetConnectionString("FinanceDatabase");
+    // When -- posting the currency entry
+    var content = new StringContent(
+      JsonSerializer.Serialize(currencyDto, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }),
+      Encoding.UTF8,
+      "application/json"
+    );
 
-        _factory = new WebApplicationFactory<Program>();
-        _testHttpClient = _factory.CreateClient();
-    }
+    var response = await _testHttpClient.PostAsync("/v1/writeCurrencyResource", content);
 
-    [Test]
-    public async Task GivenClientRequestsExistingCurrencyWhenClientPostsExistingRandsThenFailCreationAsUnprocessableEntity()
+    // Then -- ensure result contains the expected status code
+    Assert.That(HttpStatusCode.UnprocessableEntity, Is.EqualTo(response.StatusCode));
+  }
+
+  [Test]
+  public async Task GivenClientRequestsNewCurrencyWhenClientPostsNewSwissCurrencyThenVerifyCreationAsCreatedSuccessfully()
+  {
+    // Given -- party requests for CHF creation
+    var expectedCurrencyCode = "CHF";
+    var currencyDto = new CurrencyRequest
     {
-        // Given --  ZAR already exists as an entry
-        await SimulateExistingSouthAfricanRand();
+      CurrencyCode = expectedCurrencyCode,
+      CurrencyId = 756,
+      CurrencyName = "Swiss Franc",
+      CurrencySymbol = "CHF",
+      CurrencyFlag = "🇨🇭"
+    };
 
-        // Given -- party requests for ZAR creation
-        var expectedCurrencyCode = "ZAR";
-        var currencyDto = new CurrencyRequest
-        {
-            CurrencyCode = expectedCurrencyCode,
-            CurrencyId = 710,
-            CurrencyName = "South African Rand",
-            CurrencySymbol = "R",
-            CurrencyFlag = "🇿🇦"
-        };
+    // When -- posting the currency entry
+    var content = new StringContent(
+      JsonSerializer.Serialize(currencyDto, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }),
+      Encoding.UTF8,
+      "application/json"
+    );
 
-        // When -- posting the currency entry
-        var content = new StringContent(
-          JsonSerializer.Serialize(currencyDto, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }),
-          Encoding.UTF8,
-          "application/json"
-        );
+    var response = await _testHttpClient.PostAsync("/v1/writeCurrencyResource", content);
 
-        var response = await _testHttpClient.PostAsync("/v1/WriteCurrencyResource", content);
+    // Then -- ensure result contains the created status code
+    Assert.That(HttpStatusCode.OK, Is.EqualTo(response.StatusCode));
 
-        // Then -- ensure result contains the expected status code
-        Assert.That(HttpStatusCode.UnprocessableEntity, Is.EqualTo(response.StatusCode));
-    }
+    var queryResponse = await _testHttpClient.GetAsync($"/v1/queryCurrencyResource/{expectedCurrencyCode}");
 
-    [Test]
-    public async Task GivenClientRequestsNewCurrencyWhenClientPostsNewSwissCurrencyThenVerifyCreationAsCreatedSuccessfully()
+    // Then -- ensure success result contains desired entry
+    queryResponse.EnsureSuccessStatusCode();
+    var responsePayload = await JsonSerializer.DeserializeAsync<CurrencyRequest>(await response.Content.ReadAsStreamAsync(), new JsonSerializerOptions
     {
-        // Given -- party requests for CHF creation
-        var expectedCurrencyCode = "CHF";
-        var currencyDto = new CurrencyRequest
-        {
-            CurrencyCode = expectedCurrencyCode,
-            CurrencyId = 756,
-            CurrencyName = "Swiss Franc",
-            CurrencySymbol = "CHF",
-            CurrencyFlag = "🇨🇭"
-        };
+      PropertyNameCaseInsensitive = true,
+      PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    });
 
-        // When -- posting the currency entry
-        var content = new StringContent(
-          JsonSerializer.Serialize(currencyDto, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }),
-          Encoding.UTF8,
-          "application/json"
-        );
+    Assert.That(756, Is.EqualTo(responsePayload.CurrencyId));
+    Assert.That(expectedCurrencyCode, Is.EqualTo(responsePayload.CurrencyCode));
+  }
 
-        var response = await _testHttpClient.PostAsync("/v1/WriteCurrencyResource", content);
+  [Test]
+  public async Task GivenClientRequestsNewCurrenciesWhenClientPostsBatchCurrenciesThenVerifyCreationAsCreatedSuccessfully()
+  {
+    // Given -- party requests for batch creation
+    var jsonBatchContent = JsonBatchContent();
 
-        // Then -- ensure result contains the created status code
-        Assert.That(HttpStatusCode.OK, Is.EqualTo(response.StatusCode));
+    // When -- posting the currency entry
+    var content = new StringContent(jsonBatchContent, Encoding.UTF8, "application/json");
 
-        var queryResponse = await _testHttpClient.GetAsync($"/v1/QueryCurrencyResource/{expectedCurrencyCode}");
+    var response = await _testHttpClient.PostAsync("/v1/writeCurrencyResource/Batch", content);
 
-        // Then -- ensure success result contains desired entry
-        queryResponse.EnsureSuccessStatusCode();
-        var responsePayload = await JsonSerializer.DeserializeAsync<CurrencyRequest>(await response.Content.ReadAsStreamAsync(), new JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true,
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        });
+    // Then -- ensure result contains the created status code
+    Assert.That(HttpStatusCode.OK, Is.EqualTo(response.StatusCode));
+  }
 
-        Assert.That(756, Is.EqualTo(responsePayload.CurrencyId));
-        Assert.That(expectedCurrencyCode, Is.EqualTo(responsePayload.CurrencyCode));
-    }
-
-    [Test]
-    public async Task GivenClientRequestsNewCurrenciesWhenClientPostsBatchCurrenciesThenVerifyCreationAsCreatedSuccessfully()
+  private async Task SimulateExistingSouthAfricanRand()
+  {
+    // Given -- party requests for ZAR creation
+    var expectedCurrencyCode = "ZAR";
+    var currencyDto = new CurrencyRequest
     {
-        // Given -- party requests for batch creation
-        var jsonBatchContent = JsonBatchContent();
+      CurrencyCode = expectedCurrencyCode,
+      CurrencyId = 710,
+      CurrencyName = "South African Rand",
+      CurrencySymbol = "R",
+      CurrencyFlag = "🇿🇦"
+    };
 
-        // When -- posting the currency entry
-        var content = new StringContent(jsonBatchContent, Encoding.UTF8, "application/json");
+    // When -- posting the currency entry
+    var content = new StringContent(
+      JsonSerializer.Serialize(currencyDto, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }),
+      Encoding.UTF8,
+      "application/json"
+    );
 
-        var response = await _testHttpClient.PostAsync("/v1/WriteCurrencyResource/Batch", content);
+    await _testHttpClient.PostAsync("/v1/writeCurrencyResource", content);
+  }
 
-        // Then -- ensure result contains the created status code
-        Assert.That(HttpStatusCode.OK, Is.EqualTo(response.StatusCode));
-    }
+  [TearDown]
+  public void OneTimeTearDown()
+  {
+    _testHttpClient?.Dispose();
+    _factory?.Dispose();
 
-    private async Task SimulateExistingSouthAfricanRand()
-    {
-        // Given -- party requests for ZAR creation
-        var expectedCurrencyCode = "ZAR";
-        var currencyDto = new CurrencyRequest
-        {
-            CurrencyCode = expectedCurrencyCode,
-            CurrencyId = 710,
-            CurrencyName = "South African Rand",
-            CurrencySymbol = "R",
-            CurrencyFlag = "🇿🇦"
-        };
+    var connection = new MySqlConnection(_connectionString);
+    Observable.FromAsync(() => connection.OpenAsync())
+      .SelectMany(_ => Observable.FromAsync(() => connection.ExecuteAsync("DELETE FROM dboFinance.CURRENCIES WHERE CURRENCY_ID IS NOT NULL")))
+      .SelectMany(_ => Observable.FromAsync(() => connection.ExecuteAsync("CREATE DATABASE IF NOT EXISTS dboFinance;")))
+      .Wait();
+  }
 
-        // When -- posting the currency entry
-        var content = new StringContent(
-          JsonSerializer.Serialize(currencyDto, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }),
-          Encoding.UTF8,
-          "application/json"
-        );
-
-        await _testHttpClient.PostAsync("/v1/WriteCurrencyResource", content);
-    }
-
-    [TearDown]
-    public void OneTimeTearDown()
-    {
-        _testHttpClient?.Dispose();
-        _factory?.Dispose();
-
-        var connection = new MySqlConnection(_connectionString);
-        Observable.FromAsync(() => connection.OpenAsync())
-          .SelectMany(_ => Observable.FromAsync(() => connection.ExecuteAsync("DELETE FROM dboFinance.CURRENCIES WHERE CURRENCY_ID IS NOT NULL")))
-          .SelectMany(_ => Observable.FromAsync(() => connection.ExecuteAsync("CREATE DATABASE IF NOT EXISTS dboFinance;")))
-          .Wait();
-    }
-
-    private static string JsonBatchContent()
-    {
-        return """
+  private static string JsonBatchContent()
+  {
+    return """
            {
                 "batchCurrencies": [
                     {
@@ -487,5 +487,5 @@ public class WriteCurrenciesIntegrationTest
                 ]
             }
            """;
-    }
+  }
 }

@@ -1,4 +1,3 @@
-using System;
 using Server.Main.Reactor.Clients;
 
 namespace Server.Main.Reactor.Configuration.Modules;

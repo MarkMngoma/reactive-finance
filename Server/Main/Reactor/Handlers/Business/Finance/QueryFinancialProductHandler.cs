@@ -27,14 +27,15 @@ public class QueryFinancialProductHandler : Handler<string>
     return HandleComputeEvent(id)
       .SelectMany(cacheId => _cachingHandler.HandleGet<FinancialProductDto>(FinancialProductTable.TableName, cacheId))
       .SelectMany(data => (data != null) ? Observable.Return(data) : HandleReadThenWriteIntoCache(id))
-      .Do(dataResult => Logger.Debug($"QueryFinancialProductHandler@Handle domain result :: {dataResult}"))
+      .Do(dataResult => Logger.Info($"QueryFinancialProductHandler@Handle domain result :: {dataResult}"))
       .Select(ContentResultUtil.Render);
   }
 
   public IObservable<JsonResult> Handle()
   {
-    return HandleComputeEvent(HandleReadThenWriteIntoCache())
-      .Do(dataResult => Logger.Debug($"QueryFinancialProductHandler@Handle domain result :: {dataResult.ToList().Count}"))
+    return HandleComputeEvent(_cachingHandler.HandleGet<IEnumerable<FinancialProductDto>>(FinancialProductTable.TableName, "fp-collection"))
+      .SelectMany(data => (data != null) ? Observable.Return(data) : HandleReadThenWriteIntoCache())
+      .Do(dataResult => Logger.Info($"QueryFinancialProductHandler@Handle domain result :: {dataResult.ToList().Count}"))
       .Select(ContentResultUtil.Render);
   }
 

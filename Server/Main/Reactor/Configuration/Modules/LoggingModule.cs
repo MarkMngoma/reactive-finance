@@ -1,4 +1,3 @@
-using System;
 using Server.Main.Reactor.Configuration.Extensions;
 
 namespace Server.Main.Reactor.Configuration.Modules;

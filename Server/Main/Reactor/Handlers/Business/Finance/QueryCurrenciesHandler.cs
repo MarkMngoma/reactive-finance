@@ -27,15 +27,15 @@ public class QueryCurrenciesHandler : Handler<string>
     Logger.Info($"QueryCurrenciesHandler@QueryCurrencyUsingCurrencyCode initiated for :: {currencyCode}");
     return HandleComputeEvent(currencyCode)
       .SelectMany(_currencyDomainHandler.SelectCurrencyUsingCode)
-      .Do(dataResult => Logger.Debug($"QueryCurrenciesHandler@QueryCurrencyUsingCurrencyCode domain result :: {JsonSerializer.Serialize(dataResult)}"))
+      .Do(dataResult => Logger.Info($"QueryCurrenciesHandler@QueryCurrencyUsingCurrencyCode domain result :: {JsonSerializer.Serialize(dataResult)}"))
       .Select(ContentResultUtil.Render);
   }
 
-  public IObservable<JsonResult> HandlePartyExchangeRatesQuery()
+  public IObservable<JsonResult> HandlePartyExchangeRatesQuery(string quoteCurrency)
   {
     Logger.Info("QueryCurrenciesHandler@HandlePartyExchangeRatesQuery initiated...");
-    return _fxHttpClient.QueryExternalPartyExchangeRates()
-      .Do(dto => Logger.Debug($"QueryCurrenciesHandler@HandlePartyExchangeRatesQuery preparing response :: {dto}"))
+    return _fxHttpClient.QueryExternalPartyExchangeRates(quoteCurrency)
+      .Do(dto => Logger.Info($"QueryCurrenciesHandler@HandlePartyExchangeRatesQuery preparing response :: {dto}"))
       .Select(ContentResultUtil.Render);
   }
 
@@ -43,7 +43,7 @@ public class QueryCurrenciesHandler : Handler<string>
   {
     Logger.Info("QueryCurrenciesHandler@HandleCurrencyListQuery initiated...");
     return HandleComputeEvent(_currencyDomainHandler.SelectEnumerableCurrencies())
-      .Do(dataResult => Logger.Debug($"QueryCurrenciesHandler@HandleCurrencyListQuery domain result :: {dataResult.ToList().Count}"))
+      .Do(dataResult => Logger.Info($"QueryCurrenciesHandler@HandleCurrencyListQuery domain result :: {dataResult.ToList().Count}"))
       .Select(ContentResultUtil.Render);
   }
 

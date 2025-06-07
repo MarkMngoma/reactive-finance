@@ -25,7 +25,7 @@ public class CurrencyDomainHandler
         .Limit(1)
         .FirstOrDefaultAsync<CurrencyRequest>()
       )
-      .SubscribeOn(Scheduler.Default);
+      .SubscribeOn(TaskPoolScheduler.Default);
   }
 
   public IObservable<IEnumerable<CurrencyRequest>> SelectEnumerableCurrencies()

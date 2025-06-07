@@ -14,9 +14,9 @@ namespace Server.Main.Reactor.Builders.Tables.Generated.Models
   /// </summary>
   public class SubscriptionsDto
   {
-    public string Id { get; set; }
-    public string BusinessId { get; set; }
-    public string FinancialProductId { get; set; }
+    public ulong Id { get; set; }
+    public ulong BusinessId { get; set; }
+    public ulong FinancialProductId { get; set; }
     public string Status { get; set; }
     public DateTime StartDate { get; set; }
     public DateTime? EndDate { get; set; }

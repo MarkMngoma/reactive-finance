@@ -1,4 +1,3 @@
-using System;
 using log4net;
 using Microsoft.AspNetCore.Mvc;
 using Server.Main.Reactor.Handlers.CrossCutting;

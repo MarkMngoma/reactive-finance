@@ -1,11 +1,14 @@
 using System.Reactive.Linq;
 using System.Text.Json;
 using Hazelcast;
+using log4net;
 
 namespace Server.Main.Reactor.Handlers.CrossCutting;
 
 public class CachingHandler
 {
+
+  private static readonly ILog Logger = LogManager.GetLogger(typeof(CachingHandler));
 
   private readonly IHazelcastClient _hazelcastClient;
 
@@ -31,6 +34,7 @@ public class CachingHandler
     {
       var map = await _hazelcastClient.GetMapAsync<string, byte[]>(index);
       var bytes = await map.GetAsync(key);
+      Logger.Debug($"CachingHandler@HandleGet - Cache hit '{key}' in map index '{index}'");
       return bytes == null ? default : JsonSerializer.Deserialize<T>(bytes);
     });
   }
@@ -40,6 +44,7 @@ public class CachingHandler
     return Observable.FromAsync(async () =>
     {
       var map = await _hazelcastClient.GetMapAsync<string, byte[]>(index);
+      Logger.Debug($"CachingHandler@HandleEviction - Evicting key '{key}' from map index '{index}'");
       await map.DeleteAsync(key);
       return value;
     });

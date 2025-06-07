@@ -11,7 +11,7 @@ public class CreateSubscriptionHandler : Handler<CreateSubscriptionRequest>
 
   public override IObservable<JsonResult> Handle(CreateSubscriptionRequest request)
   {
-    Logger.Debug($"CreateSubscriptionHandler@Handle initiated...");
+    Logger.Info($"CreateSubscriptionHandler@Handle initiated...");
     throw new NotImplementedException();
   }
 }

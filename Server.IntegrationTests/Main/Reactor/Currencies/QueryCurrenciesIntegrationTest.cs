@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Reactive.Linq;
@@ -25,7 +24,7 @@ public class QueryCurrenciesIntegrationTest
   {
     var configuration = new ConfigurationBuilder()
         .SetBasePath(AppContext.BaseDirectory)
-        .AddYamlFile("Infrastructure/Configuration/application.Development.yaml", optional: false, reloadOnChange: true)
+        .AddYamlFile("Infrastructure/Configuration/config.development.yaml", optional: false, reloadOnChange: true)
         .Build();
 
     _connectionString = configuration.GetConnectionString("FinanceDatabase");
@@ -37,7 +36,7 @@ public class QueryCurrenciesIntegrationTest
   [Test]
   public async Task GivenRequestedPathWhenClientRequestsCollectiveQueryThenSuccessIsReturned()
   {
-    var response = await _testHttpClient.GetAsync("/v1/QueryCurrencyResource");
+    var response = await _testHttpClient.GetAsync("/v1/queryCurrencyResource");
     response.EnsureSuccessStatusCode();
     Assert.That(HttpStatusCode.OK, Is.EqualTo(response.StatusCode));
   }
@@ -45,7 +44,7 @@ public class QueryCurrenciesIntegrationTest
   [Test]
   public async Task GivenRequestedPathNotFoundWhenClientRequestsCollectiveQueryThen404IsReturned()
   {
-    var response = await _testHttpClient.GetAsync("/QueryCurrencyResource");
+    var response = await _testHttpClient.GetAsync("/queryCurrencyResource");
     Assert.That(HttpStatusCode.NotFound, Is.EqualTo(response.StatusCode));
   }
 

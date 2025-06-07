@@ -65,7 +65,7 @@ public class SettlementHandler : Handler<UpdateTransactionRequest>
   private IObservable<UpdateTransactionRequest> HandleValidation(UpdateTransactionRequest request)
   {
     return _transactionDomainHandler
-    .SelectTransactionById(request.TransactionId)
+    .SelectTransactionUsingTransactionId(request.TransactionId)
     .Select(transaction => new TransactionsDto() { Status = TransactionStatus.Pending.ToString() })
     .Select(transaction =>
     {

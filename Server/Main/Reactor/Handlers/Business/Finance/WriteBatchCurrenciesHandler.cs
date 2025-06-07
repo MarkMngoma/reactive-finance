@@ -23,11 +23,11 @@ public class WriteBatchCurrenciesHandler : Handler<BatchCurrencyRequest>
 
   public override IObservable<JsonResult> Handle(BatchCurrencyRequest request)
   {
-    Logger.Debug($"WriteBatchCurrenciesHandler@Handle initiated with request size #{request.BatchCurrencies.Count}");
+    Logger.Info($"WriteBatchCurrenciesHandler@Handle initiated with request size #{request.BatchCurrencies.Count}");
     return HandleComputeEvent(request)
       .SelectMany(_currencyDomainHandler.InsertBatchCurrencyRecords)
       .SelectMany(_ => _currencyDomainHandler.DeleteCurrencyRecords())
-      .Do(dataResult => Logger.Debug($"WriteBatchCurrenciesHandler@Handle domain result :: {JsonSerializer.Serialize(dataResult)}"))
+      .Do(dataResult => Logger.Info($"WriteBatchCurrenciesHandler@Handle domain result :: {JsonSerializer.Serialize(dataResult)}"))
       .SelectMany(_ => _queryCurrenciesHandler.HandleCurrencyListQuery());
   }
 }

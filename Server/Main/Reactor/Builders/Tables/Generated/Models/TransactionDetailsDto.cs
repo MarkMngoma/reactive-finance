@@ -19,9 +19,11 @@ namespace Server.Main.Reactor.Builders.Tables.Generated.Models
     public string Source { get; set; }
     public string Payload { get; set; }
     public string Status { get; set; }
-    public string TransactionId { get; set; }
+    public ulong TransactionId { get; set; }
     public DateTime ReceivedAt { get; set; }
     public DateTime? ProcessedAt { get; set; }
     public string ErrorMessage { get; set; }
+
+    public TransactionsDto Transaction { get; set; }
   }
 }

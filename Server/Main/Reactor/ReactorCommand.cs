@@ -29,9 +29,10 @@ public class ReactorCommand
 
   private static void ConfigResolver(WebApplicationBuilder builder)
   {
-    var configFile = $"Infrastructure/Configuration/application.{builder.Environment.EnvironmentName}.yaml";
+    var configFile = $"Infrastructure/Configuration/config.{builder.Environment.EnvironmentName.ToLower()}.yaml";
     builder.Configuration.AddYamlFile(configFile, optional: false, reloadOnChange: true);
     builder.Services.AddConfig<IntegrationsConfig>(builder.Configuration, "IntegrationsConfig");
     builder.Services.AddConfig<TransactionConfig>(builder.Configuration, "TransactionConfig");
+    builder.Services.AddConfig<ForexConfig>(builder.Configuration, "ForexConfig");
   }
 }

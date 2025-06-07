@@ -30,7 +30,7 @@ public abstract class BaseHttpClient
     return Observable.FromAsync(async () =>
     {
       var content = await response.Content.ReadAsStringAsync();
-      Logger.Info($"BasePayFastHttpClient@UnmarshallClientResult<{typeof(T).Name}> response payload :: {content}");
+      Logger.Info($"BaseHttpClient@UnmarshallClientResult<{typeof(T).Name}> response payload :: {content}");
       return JsonSerializer.Deserialize<T>(content, new JsonSerializerOptions
       {
         PropertyNameCaseInsensitive = true

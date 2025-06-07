@@ -8,15 +8,13 @@ using Server.Main.Reactor.Utils;
 namespace Server.Main.Reactor.Resources.V1;
 
 [ApiController]
-[Route("v1/[controller]")]
+[ApiExplorerSettings(GroupName = "v1")]
+[Route("v1/queryCurrencyResource")]
 [Produces("application/json")]
 public class QueryCurrencyResourceController: ControllerBase
 {
-
   private static readonly ILog Logger = LogManager.GetLogger(typeof(QueryCurrencyResourceController));
-
   private readonly QueryCurrenciesHandler _queryCurrenciesHandler;
-
   public QueryCurrencyResourceController(QueryCurrenciesHandler queryCurrenciesHandler)
   {
     _queryCurrenciesHandler = queryCurrenciesHandler;
@@ -42,11 +40,11 @@ public class QueryCurrencyResourceController: ControllerBase
   }
 
   [HttpGet]
-  [Route("exchanges")]
-  public Task<IActionResult> GetExchangeRates()
+  [Route("exchangeRates")]
+  public Task<IActionResult> GetExchangeRates(string quoteCurrency)
   {
     Logger.Info("QueryCurrencyResourceController@GetExchangeRates initiated...");
-    return _queryCurrenciesHandler.HandlePartyExchangeRatesQuery()
+    return _queryCurrenciesHandler.HandlePartyExchangeRatesQuery(quoteCurrency)
       .Catch<IActionResult, Exception>(ex => ContentResultUtil.Throw(ex, StatusCodes.Status404NotFound))
       .ToTask();
   }

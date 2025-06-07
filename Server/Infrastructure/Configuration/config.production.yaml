@@ -10,21 +10,30 @@ ConnectionStrings:
 ApplicationInsights:
   ConnectionString: "InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint=https://westus2-0.in.applicationinsights.azure.com/"
 
-Integrations:
+IntegrationsConfig:
   PayFast:
     MerchantId: 12345678
     MerchantKey: "abcdefghijklmnop"
     Passphrase: "zyxwvutsrqponmlkjihgfedcba"
     JsonApiBaseUrl: "https://api.payfast.co.za/v1"
     FormApiBaseUrl: "https://www.payfast.co.za"
-    ReturnUrl: "/v1/CallbackResource/Succeeded/{transactionId}"
-    CancelUrl: "/v1/CallbackResource/Cancelled/{transactionId}"
-    NotifyUrl: "/v1/SettlementResource/{transactionId}"
+    ReturnUrl: "https://google.com"
+    CancelUrl: "https://google.com"
+    NotifyUrl: "/v1/TransactionResource/Settlement/{transactionId}"
 
 Hazelcast:
   ServerAddress: "hazelcast:5701"
 
-Transaction:
+TransactionConfig:
   AllowedSettlementStatuses:
     - "Pending"
     - "Authorised"
+
+ForexConfig:
+  BaseCurrency: "ZAR"
+  SupportedCurrencies:
+    - "USD"
+    - "EUR"
+    - "GBP"
+    - "JPY"
+  ExchangeRatesApiUrl: "https://latest.currency-api.pages.dev/v1/currencies"

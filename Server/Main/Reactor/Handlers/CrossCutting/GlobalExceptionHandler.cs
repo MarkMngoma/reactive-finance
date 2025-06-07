@@ -20,7 +20,7 @@ public class GlobalExceptionHandler : IExceptionHandler
     }
     else
     {
-      problemDetails.Title = "v1.0 - An unexpected error occurred";
+      problemDetails.Title = "An unexpected error occurred";
       problemDetails.Detail = "Please try again later. If the problem persists, contact support.";
       httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
     }

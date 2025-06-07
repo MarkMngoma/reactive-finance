@@ -2,6 +2,7 @@ using System.Reactive.Linq;
 using System.Text.Json;
 using log4net;
 using Microsoft.AspNetCore.Mvc;
+using Server.Main.Reactor.Handlers.CrossCutting.Exceptions;
 using static System.Text.Json.Serialization.JsonIgnoreCondition;
 
 namespace Server.Main.Reactor.Utils;
@@ -26,13 +27,15 @@ public class ContentResultUtil
   }
 
   public static IObservable<IActionResult> Throw(Exception exception, int statusCode)
-  {
+{
     Logger.Error($"ContentResultUtil@Throw result :: {exception}");
-    return Observable.Return(new ContentResult
+    var message = exception is StandardException e ? e.Message : "Please try again later. If the problem persists, contact support.";
+    var contentResult = new ContentResult
     {
-      Content = JsonSerializer.Serialize(new { error = exception.Message }),
-      ContentType = "application/json",
-      StatusCode = statusCode
-    });
-  }
+        Content = JsonSerializer.Serialize(new { success = false, error = message }),
+        ContentType = "application/json",
+        StatusCode = exception is StandardException ? statusCode : StatusCodes.Status500InternalServerError
+    };
+    return Observable.Return(contentResult);
+}
 }
