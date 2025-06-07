@@ -13,7 +13,7 @@ namespace Server.Main.Reactor.Configuration.Modules;
 
 public static class ServerModule
 {
-  public static void ConfigureServices(IServiceCollection services, IConfiguration configuration)
+  public static void Configure(IServiceCollection services, IConfiguration configuration)
   {
     services.AddHttpClient();
     var connectionString = configuration.GetConnectionString("FinanceDatabase");
