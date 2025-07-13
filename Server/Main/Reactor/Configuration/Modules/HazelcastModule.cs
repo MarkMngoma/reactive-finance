@@ -32,7 +32,7 @@ public static class HazelcastModule
         .GetAwaiter()
         .GetResult()
     );
-    builder.Services.AddSingleton<CachingHandler>();
+    builder.Services.AddSingleton<ICachingHandler, CachingHandler>();
   }
 }
 

@@ -2,27 +2,27 @@ using System.Reactive.Linq;
 using log4net;
 using Microsoft.AspNetCore.Mvc;
 using Server.Main.Reactor.Handlers.CrossCutting;
-using Server.Main.Reactor.Models.Request.Transactions;
-using Server.Main.Reactor.Models.Response;
+using Server.Main.Reactor.Models.DTO;
+using Server.Main.Reactor.Models.Dto.Transactions;
 using Server.Main.Reactor.Utils;
 
 namespace Server.Main.Reactor.Handlers.Business.Transactions;
 
-public class CreateAdhocTransactionHandler : Handler<CreateTransactionRequest>
+public class CreateAdhocTransactionHandler : Handler<CreateTransactionDto>
 {
   private static readonly ILog Logger = LogManager.GetLogger(typeof(CreateAdhocTransactionHandler));
 
-  public override IObservable<JsonResult> Handle(CreateTransactionRequest request)
+  public override IObservable<JsonResult> Handle(CreateTransactionDto dto)
   {
     Logger.Info("CreateAdhocTransactionHandler@Handle called");
-    return HandleComputeEvent(request)
+    return HandleComputeEvent(dto)
       .SelectMany(HandleAuthorisation)
-      .Select(_ => ContentResultUtil.Render(new BasicResponse(true)));
+      .Select(_ => ContentResultUtil.Render(new BasicResponseDto(true)));
   }
 
-  public IObservable<JsonResult> HandleAuthorisation(CreateTransactionRequest request)
+  private IObservable<JsonResult> HandleAuthorisation(CreateTransactionDto dto)
   {
     Logger.Info($"CreateAdhocTransactionHandler@HandleAuthorisation called");
-    return Handle(request);
+    return Handle(dto);
   }
 }

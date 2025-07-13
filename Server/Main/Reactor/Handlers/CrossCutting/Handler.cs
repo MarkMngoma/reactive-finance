@@ -4,11 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Server.Main.Reactor.Handlers.CrossCutting;
 
-public abstract class Handler<R>
+public abstract class Handler<TR> : IHandler<TR>
 {
-  public abstract IObservable<JsonResult> Handle(R request);
-
-  public IObservable<R> HandleComputeEvent(R request)
+  protected IObservable<TR> HandleComputeEvent(TR request)
   {
     return Observable.Using(() => new EventLoopScheduler(), eventLoopScheduler =>
         Observable.Return(request)
@@ -19,7 +17,7 @@ public abstract class Handler<R>
       );
   }
 
-  public IObservable<T> HandleComputeEvent<T>(IObservable<T> source)
+  protected IObservable<T> HandleComputeEvent<T>(IObservable<T> source)
   {
       return Observable.Using(() => new EventLoopScheduler(), eventLoopScheduler => source
         .Retry(3)
@@ -28,4 +26,6 @@ public abstract class Handler<R>
         .Finally(eventLoopScheduler.Dispose)
       );
   }
+
+  public abstract IObservable<JsonResult> Handle(TR request);
 }

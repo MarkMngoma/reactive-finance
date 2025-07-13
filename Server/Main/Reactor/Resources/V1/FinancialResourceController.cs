@@ -3,6 +3,7 @@ using System.Reactive.Threading.Tasks;
 using log4net;
 using Microsoft.AspNetCore.Mvc;
 using Server.Main.Reactor.Handlers.Business.Finance;
+using Server.Main.Reactor.Models.Dto.Queries;
 using Server.Main.Reactor.Utils;
 
 namespace Server.Main.Reactor.Resources.V1;
@@ -36,7 +37,11 @@ public class FinancialResourceController : ControllerBase
   public Task<IActionResult> GetFinancialProducts(string id)
   {
     Logger.Info($"FinancialResourceController@GetFinancialProducts initiated for id: {id}");
-    return _queryFinancialProductHandler.Handle(id)
+    var request = new QueryFinancialProductDto()
+    {
+      Id = id
+    };
+    return _queryFinancialProductHandler.Handle(request)
       .Catch<IActionResult, Exception>(ex => ContentResultUtil.Throw(ex, StatusCodes.Status404NotFound))
       .ToTask();
   }

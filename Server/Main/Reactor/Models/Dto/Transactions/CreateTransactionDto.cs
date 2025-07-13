@@ -1,8 +1,8 @@
 using Server.Main.Reactor.Models.Enums;
 
-namespace Server.Main.Reactor.Models.Request.Transactions;
+namespace Server.Main.Reactor.Models.Dto.Transactions;
 
-public class CreateTransactionRequest
+public class CreateTransactionDto
 {
   public decimal Amount { get; set; }
 

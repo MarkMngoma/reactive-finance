@@ -4,14 +4,24 @@ using Server.Main.Reactor.Builders;
 using Server.Main.Reactor.Builders.Tables.Generated;
 using Server.Main.Reactor.Builders.Tables.Generated.Models;
 using Server.Main.Reactor.Handlers.CrossCutting.Exceptions;
-using Server.Main.Reactor.Models.Request.Transactions;
+using Server.Main.Reactor.Models.Dto.Transactions;
+using Server.Main.Reactor.Models.Enums;
 using SqlKata.Execution;
-
 using static Server.Main.Reactor.Builders.Tables.Generated.TransactionsTable;
 
 namespace Server.Main.Reactor.Handlers.Domain;
 
-public class TransactionDomainHandler
+public interface ITransactionDomainHandler
+{
+  IObservable<int> InsertTransaction(CreateTransactionDto dto, ulong subscriptionId);
+  IObservable<TransactionsDto> UpdateTransaction(UpdateTransactionDto dto);
+  IObservable<IEnumerable<TransactionsDto>> SelectTransactionsUsingId(ulong id);
+  IObservable<TransactionsDto> SelectSettlementTransactionUsingId(ulong id);
+  IObservable<IEnumerable<TransactionsDto>> SelectTransactionsUsingTransactionId(string? id);
+  IObservable<TransactionsDto> SelectTransactionUsingTransactionId(string? id);
+}
+
+public class TransactionDomainHandler : ITransactionDomainHandler
 {
   private readonly QueryFactory _queryFactory;
 
@@ -20,17 +30,17 @@ public class TransactionDomainHandler
     _queryFactory = queryFactory;
   }
 
-  public IObservable<int> InsertTransaction(CreateTransactionRequest request, ulong subscriptionId)
+  public IObservable<int> InsertTransaction(CreateTransactionDto dto, ulong subscriptionId)
   {
     return Observable.FromAsync(() => _queryFactory
       .Query(TableName)
       .InsertAsync(new TransactionRecordBuilder()
-        .WithAmount(request.Amount)
-        .WithType(request.Type)
+        .WithAmount(dto.Amount)
+        .WithType(dto.Type)
         .WithCurrency("ZAR")
-        .WithStatus(Models.Enums.TransactionStatus.Pending.ToString())
+        .WithStatus(nameof(TransactionStatus.Pending))
         .WithTransactionDate(DateTime.UtcNow)
-        .WithDescription(request.Description ?? "Subscription Payment")
+        .WithDescription(dto.Description ?? "Subscription Payment")
         .WithSubscriptionId(subscriptionId)
         .WithCreatedAt(DateTime.UtcNow)
         .Build())
@@ -38,9 +48,9 @@ public class TransactionDomainHandler
       .SubscribeOn(TaskPoolScheduler.Default);
   }
 
-  public IObservable<TransactionsDto> UpdateTransaction(UpdateTransactionRequest request)
+  public IObservable<TransactionsDto> UpdateTransaction(UpdateTransactionDto dto)
   {
-    return SelectTransactionUsingTransactionId(request.TransactionId)
+    return SelectTransactionUsingTransactionId(dto.TransactionId)
       .Do(existingTransaction =>
       {
         if (existingTransaction.TransactionId == null)
@@ -50,12 +60,12 @@ public class TransactionDomainHandler
       })
       .Select(existingRecord =>
       {
-        existingRecord.Status = request.Status;
+        existingRecord.Status = dto.Status;
         existingRecord.UpdatedAt = DateTime.UtcNow;
         return existingRecord;
       })
       .SelectMany(record => _queryFactory.Query(TableName).UpdateAsync(record))
-      .SelectMany(_ => SelectTransactionUsingTransactionId(request.TransactionId))
+      .SelectMany(_ => SelectTransactionUsingTransactionId(dto.TransactionId))
       .SubscribeOn(TaskPoolScheduler.Default);
   }
 

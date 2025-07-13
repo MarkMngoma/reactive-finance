@@ -29,6 +29,10 @@ public class ContentResultUtil
   public static IObservable<IActionResult> Throw(Exception exception, int statusCode)
 {
     Logger.Error($"ContentResultUtil@Throw result :: {exception}");
+    if (Environments.Development.Equals(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")))
+    {
+      Console.Error.WriteLine(exception);
+    }
     var message = exception is StandardException e ? e.Message : "Please try again later. If the problem persists, contact support.";
     var contentResult = new ContentResult
     {

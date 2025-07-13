@@ -3,12 +3,18 @@ using System.Reactive.Linq;
 using Server.Main.Reactor.Builders;
 using Server.Main.Reactor.Builders.Tables.Generated.Models;
 using SqlKata.Execution;
-
 using static Server.Main.Reactor.Builders.Tables.Generated.SubscriptionsTable;
 
 namespace Server.Main.Reactor.Handlers.Domain;
 
-public class SubscriptionDomainHandler
+public interface ISubscriptionDomainHandler
+{
+  IObservable<SubscriptionsDto> SelectSubscriptionUsingId(ulong id);
+  IObservable<IEnumerable<SubscriptionsDto>> SelectSubscriptions();
+  IObservable<int> InsertCurrencyRecord(SubscriptionsDto request);
+}
+
+public class SubscriptionDomainHandler : ISubscriptionDomainHandler
 {
   private readonly QueryFactory _queryFactory;
 

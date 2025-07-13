@@ -2,40 +2,30 @@ using System.Reactive.Linq;
 using System.Text.Json;
 using log4net;
 using Microsoft.AspNetCore.Mvc;
-using Server.Main.Reactor.Clients;
 using Server.Main.Reactor.Handlers.CrossCutting;
 using Server.Main.Reactor.Handlers.Domain;
+using Server.Main.Reactor.Models.Dto.Queries;
 using Server.Main.Reactor.Utils;
 
 namespace Server.Main.Reactor.Handlers.Business.Finance;
 
-public class QueryCurrenciesHandler : Handler<string>
+public class QueryCurrenciesHandler : Handler<QueryCurrencyDto>
 {
   private static readonly ILog Logger = LogManager.GetLogger(typeof(QueryCurrenciesHandler));
 
-  private readonly FxHttpClient _fxHttpClient;
-  private readonly CurrencyDomainHandler _currencyDomainHandler;
+  private readonly ICurrencyDomainHandler _currencyDomainHandler;
 
-  public QueryCurrenciesHandler(FxHttpClient fxHttpClient, CurrencyDomainHandler currencyDomainHandler)
+  public QueryCurrenciesHandler(ICurrencyDomainHandler currencyDomainHandler)
   {
-    _fxHttpClient = fxHttpClient;
     _currencyDomainHandler = currencyDomainHandler;
   }
 
-  public override IObservable<JsonResult> Handle(string currencyCode)
+  public override IObservable<JsonResult> Handle(QueryCurrencyDto dto)
   {
-    Logger.Info($"QueryCurrenciesHandler@QueryCurrencyUsingCurrencyCode initiated for :: {currencyCode}");
-    return HandleComputeEvent(currencyCode)
-      .SelectMany(_currencyDomainHandler.SelectCurrencyUsingCode)
-      .Do(dataResult => Logger.Info($"QueryCurrenciesHandler@QueryCurrencyUsingCurrencyCode domain result :: {JsonSerializer.Serialize(dataResult)}"))
-      .Select(ContentResultUtil.Render);
-  }
-
-  public IObservable<JsonResult> HandlePartyExchangeRatesQuery(string quoteCurrency)
-  {
-    Logger.Info("QueryCurrenciesHandler@HandlePartyExchangeRatesQuery initiated...");
-    return _fxHttpClient.QueryExternalPartyExchangeRates(quoteCurrency)
-      .Do(dto => Logger.Info($"QueryCurrenciesHandler@HandlePartyExchangeRatesQuery preparing response :: {dto}"))
+    Logger.Info($"QueryCurrenciesHandler@Handle initiated for :: {dto.CurrencyCode}");
+    return HandleComputeEvent(dto)
+      .SelectMany(r => _currencyDomainHandler.SelectCurrencyUsingCode(r?.CurrencyCode))
+      .Do(dataResult => Logger.Info($"QueryCurrenciesHandler@Handle domain result :: {JsonSerializer.Serialize(dataResult)}"))
       .Select(ContentResultUtil.Render);
   }
 

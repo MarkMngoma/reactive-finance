@@ -11,8 +11,14 @@ public class GlobalExceptionHandler : IExceptionHandler
   public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
   {
     Logger.Error($"GlobalExceptionHandler@TryHandleAsync result :: {exception}");
-    var problemDetails = new ProblemDetails();
-    problemDetails.Instance = httpContext.Request.Path;
+    if (Environments.Development.Equals(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")))
+    {
+      Console.Error.WriteLine(exception);
+    }
+    var problemDetails = new ProblemDetails
+    {
+      Instance = httpContext.Request.Path
+    };
     if (exception is StandardException e)
     {
       problemDetails.Title = e.Message;

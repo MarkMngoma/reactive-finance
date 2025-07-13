@@ -7,7 +7,13 @@ using static Server.Main.Reactor.Builders.Tables.Generated.TransactionDetailsTab
 
 namespace Server.Main.Reactor.Handlers.Domain;
 
-public class TransactionDetailsDomainHandler
+public interface ITransactionDetailsDomainHandler
+{
+  IObservable<TransactionDetailsDto> SelectTransactionsUsingTransactionId(string? id);
+  IObservable<TransactionsDto> UpdateTransactionDetails(TransactionsDto transaction);
+}
+
+public class TransactionDetailsDomainHandler : ITransactionDetailsDomainHandler
 {
   private readonly QueryFactory _queryFactory;
 

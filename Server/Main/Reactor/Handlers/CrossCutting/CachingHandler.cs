@@ -5,9 +5,14 @@ using log4net;
 
 namespace Server.Main.Reactor.Handlers.CrossCutting;
 
-public class CachingHandler
+public interface ICachingHandler
 {
-
+  IObservable<T> HandleWrite<T>(string index, string key, T value);
+  IObservable<T?> HandleGet<T>(string index, string key);
+  IObservable<T> HandleEviction<T>(string index, string key, T value);
+}
+public class CachingHandler : ICachingHandler
+{
   private static readonly ILog Logger = LogManager.GetLogger(typeof(CachingHandler));
 
   private readonly IHazelcastClient _hazelcastClient;

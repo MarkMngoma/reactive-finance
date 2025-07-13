@@ -20,6 +20,7 @@ public static class BusinessModule
     services.AddSingleton<CreateSubscriptionHandler>();
     services.AddSingleton<UpdateSubscriptionHandler>();
     services.AddSingleton<DeleteSubscriptionHandler>();
+    services.AddSingleton<QueryExchangeRateHandler>();
   }
 }
 

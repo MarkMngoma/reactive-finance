@@ -6,9 +6,14 @@ using static Server.Main.Reactor.Builders.Tables.Generated.FinancialProductTable
 
 namespace Server.Main.Reactor.Handlers.Domain;
 
-public class FinancialProductDomainHandler
+public interface IFinancialProductDomainHandler
 {
+  IObservable<IEnumerable<FinancialProductDto>> SelectFinancialProducts();
+  IObservable<FinancialProductDto> SelectFinancialProductUsingId(string? id);
+}
 
+public class FinancialProductDomainHandler : IFinancialProductDomainHandler
+{
   private readonly QueryFactory _queryFactory;
 
   public FinancialProductDomainHandler(QueryFactory queryFactory)

@@ -6,48 +6,48 @@ using Server.Main.Reactor.Configuration.Objects;
 using Server.Main.Reactor.Handlers.CrossCutting;
 using Server.Main.Reactor.Handlers.CrossCutting.Exceptions;
 using Server.Main.Reactor.Handlers.Domain;
+using Server.Main.Reactor.Models.DTO;
+using Server.Main.Reactor.Models.Dto.Transactions;
 using Server.Main.Reactor.Models.Enums;
-using Server.Main.Reactor.Models.Request.Transactions;
-using Server.Main.Reactor.Models.Response;
 using Server.Main.Reactor.Utils;
 
 namespace Server.Main.Reactor.Handlers.Business.Transactions;
 
-public class SettlementHandler : Handler<UpdateTransactionRequest>
+public class SettlementHandler : Handler<UpdateTransactionDto>
 {
 
   private static readonly ILog Logger = LogManager.GetLogger(typeof(SettlementHandler));
-  private readonly TransactionDomainHandler _transactionDomainHandler;
-  private readonly TransactionDetailsDomainHandler _transactionDetailsDomainHandler;
+  private readonly ITransactionDomainHandler _transactionDomainHandler;
+  private readonly ITransactionDetailsDomainHandler _transactionDetailsDomainHandler;
   private readonly TransactionConfig _transactionConfig;
 
-  public SettlementHandler(TransactionDomainHandler transactionDomainHandler, TransactionDetailsDomainHandler transactionDetailsDomainHandler, TransactionConfig transactionConfig)
+  public SettlementHandler(ITransactionDomainHandler transactionDomainHandler, ITransactionDetailsDomainHandler transactionDetailsDomainHandler, TransactionConfig transactionConfig)
   {
     _transactionDomainHandler = transactionDomainHandler;
     _transactionDetailsDomainHandler = transactionDetailsDomainHandler;
     _transactionConfig = transactionConfig;
   }
 
-  public override IObservable<JsonResult> Handle(UpdateTransactionRequest request)
+  public override IObservable<JsonResult> Handle(UpdateTransactionDto dto)
   {
-    return HandleComputeEvent(request)
+    return HandleComputeEvent(dto)
       .SelectMany(HandleValidation)
       .SelectMany(HandleExternalConfirmation)
       .SelectMany(CompleteSettlement)
       .SelectMany(HandlePartyNotifications)
-      .Select(_ => ContentResultUtil.Render(new BasicResponse(true)))
-      .Do(_ => Logger.Info($"SettlementHandler@Handle completed for TransactionId: {request.TransactionId}"));
+      .Select(_ => ContentResultUtil.Render(new BasicResponseDto(true)))
+      .Do(_ => Logger.Info($"SettlementHandler@Handle completed for TransactionId: {dto.TransactionId}"));
   }
 
-  public IObservable<UpdateTransactionRequest> HandleExternalConfirmation(UpdateTransactionRequest request)
+  private IObservable<UpdateTransactionDto> HandleExternalConfirmation(UpdateTransactionDto dto)
   {
 
     // TODO: Implement external confirmation logic to call PayFast API transaction confirmation.
-    Logger.Debug($"SettlementHandler@HandleExternalConfirmation initiated for TransactionId: {request.TransactionId}");
-    return Observable.Return(request);
+    Logger.Debug($"SettlementHandler@HandleExternalConfirmation initiated for TransactionId: {dto.TransactionId}");
+    return Observable.Return(dto);
   }
 
-  public IObservable<TransactionsDto> HandlePartyNotifications(TransactionsDto request)
+  private IObservable<TransactionsDto> HandlePartyNotifications(TransactionsDto request)
   {
     // TODO: Implement party notification logic, e.g., sending emails or notifications to parties involved in the transaction.
     // This could involve calling a notification service or sending messages to a message queue.
@@ -56,17 +56,17 @@ public class SettlementHandler : Handler<UpdateTransactionRequest>
     return Observable.Return(request);
   }
 
-  public IObservable<TransactionsDto> CompleteSettlement(UpdateTransactionRequest request)
+  private IObservable<TransactionsDto> CompleteSettlement(UpdateTransactionDto dto)
   {
-    return _transactionDomainHandler.UpdateTransaction(request)
+    return _transactionDomainHandler.UpdateTransaction(dto)
       .SelectMany(_transactionDetailsDomainHandler.UpdateTransactionDetails);
   }
 
-  private IObservable<UpdateTransactionRequest> HandleValidation(UpdateTransactionRequest request)
+  private IObservable<UpdateTransactionDto> HandleValidation(UpdateTransactionDto dto)
   {
     return _transactionDomainHandler
-    .SelectTransactionUsingTransactionId(request.TransactionId)
-    .Select(transaction => new TransactionsDto() { Status = TransactionStatus.Pending.ToString() })
+    .SelectTransactionUsingTransactionId(dto.TransactionId)
+    .Select(transaction => new TransactionsDto() { Status = nameof(TransactionStatus.Pending) })
     .Select(transaction =>
     {
       if (transaction == null)
@@ -74,11 +74,11 @@ public class SettlementHandler : Handler<UpdateTransactionRequest>
         throw new StandardException("Transaction not found.");
       }
 
-      if (_transactionConfig.AllowedSettlementStatuses.Contains(request.Status) == false)
+      if (_transactionConfig.AllowedSettlementStatuses.Contains(dto.Status) == false)
       {
-        throw new StandardException($"Invalid transaction status: {request.Status}.");
+        throw new StandardException($"Invalid transaction status: {dto.Status}.");
       }
-      return request;
+      return dto;
     });
   }
 }

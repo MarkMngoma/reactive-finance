@@ -2,12 +2,22 @@ using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using SqlKata.Execution;
 using Server.Main.Reactor.Builders;
-using Server.Main.Reactor.Models.Request;
+using Server.Main.Reactor.Models.Dto.Currencies;
 using static Server.Main.Reactor.Builders.Tables.Generated.CurrenciesTable;
 
 namespace Server.Main.Reactor.Handlers.Domain;
 
-public class CurrencyDomainHandler
+public interface ICurrencyDomainHandler
+{
+  IObservable<CurrencyDto> SelectCurrencyUsingCode(string? currencyCode);
+  IObservable<bool> SelectCurrencyExistsUsingCode(string? currencyCode);
+  IObservable<IEnumerable<CurrencyDto>> SelectEnumerableCurrencies();
+  IObservable<int> InsertCurrencyRecord(CurrencyDto dto);
+  IObservable<int> InsertBatchCurrencyRecords(BatchCurrencyDto dto);
+  IObservable<int> DeleteCurrencyRecords();
+}
+
+public class CurrencyDomainHandler : ICurrencyDomainHandler
 {
   private readonly QueryFactory _queryFactory;
 
@@ -16,45 +26,55 @@ public class CurrencyDomainHandler
     _queryFactory = queryFactory;
   }
 
-  public IObservable<CurrencyRequest> SelectCurrencyUsingCode(string currencyCode)
+  public IObservable<CurrencyDto> SelectCurrencyUsingCode(string? currencyCode)
   {
     return Observable.FromAsync(() =>
         _queryFactory.Query(TableName)
         .Select(Id, CurrencyId, CurrencyCode, CurrencyName, CurrencySymbol, CurrencyFlag)
         .Where(CurrencyCode, currencyCode)
         .Limit(1)
-        .FirstOrDefaultAsync<CurrencyRequest>()
+        .FirstOrDefaultAsync<CurrencyDto>()
       )
       .SubscribeOn(TaskPoolScheduler.Default);
   }
 
-  public IObservable<IEnumerable<CurrencyRequest>> SelectEnumerableCurrencies()
+  public IObservable<bool> SelectCurrencyExistsUsingCode(string? currencyCode)
   {
-    return Observable.FromAsync(() => _queryFactory.Query(TableName)
-      .Select(Id, CurrencyId, CurrencyCode, CurrencyName, CurrencySymbol, CurrencyFlag)
-      .GetAsync<CurrencyRequest>())
+    return Observable.FromAsync(() =>
+        _queryFactory.Query(TableName)
+          .Where(CurrencyCode, currencyCode)
+          .ExistsAsync()
+      )
       .SubscribeOn(TaskPoolScheduler.Default);
   }
 
-  public IObservable<int> InsertCurrencyRecord(CurrencyRequest request)
+  public IObservable<IEnumerable<CurrencyDto>> SelectEnumerableCurrencies()
+  {
+    return Observable.FromAsync(() => _queryFactory.Query(TableName)
+      .Select(Id, CurrencyId, CurrencyCode, CurrencyName, CurrencySymbol, CurrencyFlag)
+      .GetAsync<CurrencyDto>())
+      .SubscribeOn(TaskPoolScheduler.Default);
+  }
+
+  public IObservable<int> InsertCurrencyRecord(CurrencyDto dto)
   {
     return Observable.FromAsync(() => _queryFactory
       .Query(TableName)
       .InsertAsync(new CurrencyRecordBuilder()
-        .WithCurrencyCode(request.CurrencyCode)
-        .WithCurrencySymbol(request.CurrencySymbol)
-        .WithCurrencyFlag(request.CurrencyFlag)
-        .WithCurrencyName(request.CurrencyName)
-        .WithCurrencyId(request.CurrencyId)
+        .WithCurrencyCode(dto.CurrencyCode)
+        .WithCurrencySymbol(dto.CurrencySymbol)
+        .WithCurrencyFlag(dto.CurrencyFlag)
+        .WithCurrencyName(dto.CurrencyName)
+        .WithCurrencyId(dto.CurrencyId)
         .Build())
       )
       .SubscribeOn(TaskPoolScheduler.Default);
   }
 
-  public IObservable<int> InsertBatchCurrencyRecords(BatchCurrencyRequest request)
+  public IObservable<int> InsertBatchCurrencyRecords(BatchCurrencyDto dto)
   {
     var batchRecords = new InsertBatchCurrencyRecordBuilder()
-      .AddCurrencyEntry(request)
+      .AddCurrencyEntry(dto)
       .Build();
     return Observable.FromAsync(() => _queryFactory
       .Query(TableName)

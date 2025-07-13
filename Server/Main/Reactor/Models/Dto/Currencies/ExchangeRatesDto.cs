@@ -1,10 +1,10 @@
 using System.Text.Json.Serialization;
 using JetBrains.Annotations;
 
-namespace Server.Main.Reactor.Models.Request;
+namespace Server.Main.Reactor.Models.Dto.Currencies;
 
 [UsedImplicitly]
-public class ExchangeRatesRequest
+public class ExchangeRatesDto
 {
   [JsonPropertyName("date")]
   public required string Date { get; set; }

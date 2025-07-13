@@ -1,17 +1,17 @@
-using Server.Main.Reactor.Models.Request;
+using Server.Main.Reactor.Models.Dto.Currencies;
 using static Server.Main.Reactor.Builders.Tables.Generated.CurrenciesTable;
 
 namespace Server.Main.Reactor.Builders;
 
 public class InsertBatchCurrencyRecordBuilder
 {
-  private readonly List<CurrencyRequest> _currencies = [];
+  private readonly List<CurrencyDto> _currencies = [];
 
-  public InsertBatchCurrencyRecordBuilder AddCurrencyEntry(BatchCurrencyRequest dto)
+  public InsertBatchCurrencyRecordBuilder AddCurrencyEntry(BatchCurrencyDto dto)
   {
     dto.BatchCurrencies.ForEach(item =>
     {
-      _currencies.Add(new CurrencyRequest
+      _currencies.Add(new CurrencyDto
       {
         CurrencyId = item.CurrencyId,
         CurrencyCode = item.CurrencyCode,

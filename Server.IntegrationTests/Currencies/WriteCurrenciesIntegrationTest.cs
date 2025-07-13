@@ -6,14 +6,17 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Dapper;
+using log4net.Config;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using NUnit.Framework;
 using Server.Main.Reactor;
-using Server.Main.Reactor.Models.Request;
+using Server.Main.Reactor.Models.Dto.Currencies;
 
-namespace Server.IntegrationTests.Main.Reactor.Currencies;
+namespace Server.IntegrationTests.Currencies;
 
 [TestFixture]
 public class WriteCurrenciesIntegrationTest
@@ -25,6 +28,9 @@ public class WriteCurrenciesIntegrationTest
   [SetUp]
   public void OneTimeSetUp()
   {
+    var testContextAppender = new TestContextAppender();
+    BasicConfigurator.Configure(testContextAppender);
+
     var configuration = new ConfigurationBuilder()
       .SetBasePath(AppContext.BaseDirectory)
       .AddYamlFile("Infrastructure/Configuration/config.development.yaml", optional: false, reloadOnChange: true)
@@ -32,7 +38,17 @@ public class WriteCurrenciesIntegrationTest
 
     _connectionString = configuration.GetConnectionString("FinanceDatabase");
 
-    _factory = new WebApplicationFactory<Program>();
+    _factory = new WebApplicationFactory<Program>()
+      .WithWebHostBuilder(builder =>
+      {
+        builder.ConfigureLogging(logging =>
+        {
+          logging.ClearProviders();
+          logging.AddConsole();
+          logging.SetMinimumLevel(LogLevel.Debug);
+        });
+      });
+
     _testHttpClient = _factory.CreateClient();
   }
 
@@ -44,7 +60,7 @@ public class WriteCurrenciesIntegrationTest
 
     // Given -- party requests for ZAR creation
     var expectedCurrencyCode = "ZAR";
-    var currencyDto = new CurrencyRequest
+    var currencyDto = new CurrencyDto
     {
       CurrencyCode = expectedCurrencyCode,
       CurrencyId = 710,
@@ -71,7 +87,7 @@ public class WriteCurrenciesIntegrationTest
   {
     // Given -- party requests for CHF creation
     var expectedCurrencyCode = "CHF";
-    var currencyDto = new CurrencyRequest
+    var currencyDto = new CurrencyDto
     {
       CurrencyCode = expectedCurrencyCode,
       CurrencyId = 756,
@@ -96,7 +112,7 @@ public class WriteCurrenciesIntegrationTest
 
     // Then -- ensure success result contains desired entry
     queryResponse.EnsureSuccessStatusCode();
-    var responsePayload = await JsonSerializer.DeserializeAsync<CurrencyRequest>(await response.Content.ReadAsStreamAsync(), new JsonSerializerOptions
+    var responsePayload = await JsonSerializer.DeserializeAsync<CurrencyDto>(await response.Content.ReadAsStreamAsync(), new JsonSerializerOptions
     {
       PropertyNameCaseInsensitive = true,
       PropertyNamingPolicy = JsonNamingPolicy.CamelCase
@@ -125,7 +141,7 @@ public class WriteCurrenciesIntegrationTest
   {
     // Given -- party requests for ZAR creation
     var expectedCurrencyCode = "ZAR";
-    var currencyDto = new CurrencyRequest
+    var currencyDto = new CurrencyDto
     {
       CurrencyCode = expectedCurrencyCode,
       CurrencyId = 710,
