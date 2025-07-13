@@ -1,6 +1,6 @@
-namespace Server.Main.Reactor.Models.Request.Subscriptions;
+namespace Server.Main.Reactor.Models.Dto.Subscriptions;
 
-public class CreateSubscriptionRequest
+public class CreateSubscriptionDto
 {
   public int SubscriptionType { get; set; }
   public DateTime BillingDate { get; set; }

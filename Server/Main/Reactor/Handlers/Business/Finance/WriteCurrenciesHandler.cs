@@ -5,44 +5,44 @@ using Microsoft.AspNetCore.Mvc;
 using Server.Main.Reactor.Handlers.CrossCutting;
 using Server.Main.Reactor.Handlers.CrossCutting.Exceptions;
 using Server.Main.Reactor.Handlers.Domain;
-using Server.Main.Reactor.Models.Request;
+using Server.Main.Reactor.Models.Dto.Currencies;
 using Server.Main.Reactor.Utils;
 
 namespace Server.Main.Reactor.Handlers.Business.Finance;
 
-public class WriteCurrenciesHandler : Handler<CurrencyRequest>
+public class WriteCurrenciesHandler : Handler<CurrencyDto>
 {
   private static readonly ILog Logger = LogManager.GetLogger(typeof(QueryCurrenciesHandler));
 
-  private readonly CurrencyDomainHandler _currencyDomainHandler;
+  private readonly ICurrencyDomainHandler _currencyDomainHandler;
 
-  public WriteCurrenciesHandler(CurrencyDomainHandler _currencyDomainHandler)
+  public WriteCurrenciesHandler(ICurrencyDomainHandler currencyDomainHandler)
   {
-    this._currencyDomainHandler = _currencyDomainHandler;
+    _currencyDomainHandler = currencyDomainHandler;
   }
 
-  public override IObservable<JsonResult> Handle(CurrencyRequest request)
+  public override IObservable<JsonResult> Handle(CurrencyDto dto)
   {
     Logger.Debug($"WriteCurrenciesHandler@Handle initiated...");
-    return HandleComputeEvent(request)
+    return HandleComputeEvent(dto)
       .SelectMany(HandleDuplicateEntryCheck)
       .SelectMany(_currencyDomainHandler.InsertCurrencyRecord)
-      .SelectMany(_ => _currencyDomainHandler.SelectCurrencyUsingCode(request.CurrencyCode))
+      .SelectMany(_ => _currencyDomainHandler.SelectCurrencyUsingCode(dto.CurrencyCode))
       .Do(dataResult => Logger.Debug($"WriteCurrenciesHandler@Handle domain result :: {JsonSerializer.Serialize(dataResult)}"))
       .Select(ContentResultUtil.Render);
   }
 
-  private IObservable<CurrencyRequest> HandleDuplicateEntryCheck(CurrencyRequest request)
+  private IObservable<CurrencyDto> HandleDuplicateEntryCheck(CurrencyDto dto)
   {
-    return _currencyDomainHandler.SelectCurrencyUsingCode(request.CurrencyCode)
+    return _currencyDomainHandler.SelectCurrencyExistsUsingCode(dto.CurrencyCode)
       .Select(existingCurrency =>
       {
-        if (existingCurrency != null)
+        if (existingCurrency)
         {
-          Logger.Warn($"WriteCurrenciesHandler@HandleDuplicateEntryCheck: Currency with code {request.CurrencyCode} already exists.");
-          throw new StandardException($"Currency with code {request.CurrencyCode} already exists.");
+          Logger.Warn($"WriteCurrenciesHandler@HandleDuplicateEntryCheck: Currency with code {dto.CurrencyCode} already exists.");
+          throw new StandardException($"Currency with code {dto.CurrencyCode} already exists.");
         }
-        return request;
+        return dto;
       });
   }
 }

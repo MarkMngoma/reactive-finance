@@ -4,13 +4,19 @@ using System.Net.Http;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Dapper;
+using log4net.Appender;
+using log4net.Config;
+using log4net.Core;
+using log4net.Layout;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using MySql.Data.MySqlClient;
 using NUnit.Framework;
 using Server.Main.Reactor;
 
-namespace Server.IntegrationTests.Main.Reactor.Currencies;
+namespace Server.IntegrationTests.Currencies;
 
 [TestFixture]
 public class QueryCurrenciesIntegrationTest
@@ -22,14 +28,27 @@ public class QueryCurrenciesIntegrationTest
   [SetUp]
   public void OneTimeSetUp()
   {
+    var testContextAppender = new TestContextAppender();
+    BasicConfigurator.Configure(testContextAppender);
+
     var configuration = new ConfigurationBuilder()
-        .SetBasePath(AppContext.BaseDirectory)
-        .AddYamlFile("Infrastructure/Configuration/config.development.yaml", optional: false, reloadOnChange: true)
-        .Build();
+      .SetBasePath(AppContext.BaseDirectory)
+      .AddYamlFile("Infrastructure/Configuration/config.development.yaml", optional: false, reloadOnChange: true)
+      .Build();
 
     _connectionString = configuration.GetConnectionString("FinanceDatabase");
 
-    _factory = new WebApplicationFactory<Program>();
+    _factory = new WebApplicationFactory<Program>()
+      .WithWebHostBuilder(builder =>
+      {
+        builder.ConfigureLogging(logging =>
+        {
+          logging.ClearProviders();
+          logging.AddConsole();
+          logging.SetMinimumLevel(LogLevel.Debug);
+        });
+      });
+
     _testHttpClient = _factory.CreateClient();
   }
 
@@ -51,7 +70,6 @@ public class QueryCurrenciesIntegrationTest
   [TearDown]
   public void OneTimeTearDown()
   {
-    Console.SetOut(TestContext.Progress);
     _testHttpClient?.Dispose();
     _factory?.Dispose();
 

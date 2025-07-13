@@ -14,7 +14,7 @@ public class CurrencyRecordBuilder
     return this;
   }
 
-  public CurrencyRecordBuilder WithCurrencyCode(string currencyCode)
+  public CurrencyRecordBuilder WithCurrencyCode(string? currencyCode)
   {
     _currencyCode = currencyCode;
     return this;

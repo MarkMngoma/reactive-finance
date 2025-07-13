@@ -6,10 +6,10 @@ public static class DomainModule
 {
   public static void Configure(IServiceCollection services)
   {
-    services.AddSingleton<CurrencyDomainHandler>();
-    services.AddSingleton<FinancialProductDomainHandler>();
-    services.AddSingleton<SubscriptionDomainHandler>();
-    services.AddSingleton<TransactionDomainHandler>();
-    services.AddSingleton<TransactionDetailsDomainHandler>();
+    services.AddSingleton<ICurrencyDomainHandler, CurrencyDomainHandler>();
+    services.AddSingleton<IFinancialProductDomainHandler, FinancialProductDomainHandler>();
+    services.AddSingleton<ISubscriptionDomainHandler, SubscriptionDomainHandler>();
+    services.AddSingleton<ITransactionDomainHandler, TransactionDomainHandler>();
+    services.AddSingleton<ITransactionDetailsDomainHandler, TransactionDetailsDomainHandler>();
   }
 }

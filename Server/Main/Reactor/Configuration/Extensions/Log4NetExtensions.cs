@@ -15,7 +15,7 @@ public static class Log4NetExtensions
     if (builder.Environment.IsProduction())
     {
       var configuration = TelemetryConfiguration.CreateDefault();
-      configuration.ConnectionString = builder.Configuration.GetValue<string>("ApplicationInsights:ConnectionString");
+      configuration.ConnectionString = Environment.GetEnvironmentVariable("LOG_STREAM_CONNECTION");
       XmlConfigurator.Configure(logRepository, new FileInfo($"{configPath}/log4net.Production.config"));
     }
     else

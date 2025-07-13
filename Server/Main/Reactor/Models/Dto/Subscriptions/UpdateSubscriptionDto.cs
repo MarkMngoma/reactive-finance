@@ -1,6 +1,6 @@
-namespace Server.Main.Reactor.Models.Request.Subscriptions;
+namespace Server.Main.Reactor.Models.Dto.Subscriptions;
 
-public class UpdateSubscriptionRequest
+public class UpdateSubscriptionDto
 {
   public required string SubscriptionId { get; set; }
   public string? Name { get; set; }

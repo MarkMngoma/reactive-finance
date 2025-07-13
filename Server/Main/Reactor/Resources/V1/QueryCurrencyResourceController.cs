@@ -3,6 +3,7 @@ using System.Reactive.Threading.Tasks;
 using log4net;
 using Microsoft.AspNetCore.Mvc;
 using Server.Main.Reactor.Handlers.Business.Finance;
+using Server.Main.Reactor.Models.Dto.Queries;
 using Server.Main.Reactor.Utils;
 
 namespace Server.Main.Reactor.Resources.V1;
@@ -14,10 +15,14 @@ namespace Server.Main.Reactor.Resources.V1;
 public class QueryCurrencyResourceController: ControllerBase
 {
   private static readonly ILog Logger = LogManager.GetLogger(typeof(QueryCurrencyResourceController));
+
   private readonly QueryCurrenciesHandler _queryCurrenciesHandler;
-  public QueryCurrencyResourceController(QueryCurrenciesHandler queryCurrenciesHandler)
+  private readonly QueryExchangeRateHandler _queryExchangeRateHandler;
+
+  public QueryCurrencyResourceController(QueryCurrenciesHandler queryCurrenciesHandler, QueryExchangeRateHandler queryExchangeRateHandler)
   {
     _queryCurrenciesHandler = queryCurrenciesHandler;
+    _queryExchangeRateHandler = queryExchangeRateHandler;
   }
 
   [HttpGet]
@@ -34,7 +39,11 @@ public class QueryCurrencyResourceController: ControllerBase
   public Task<IActionResult> GetSupportedCurrencyCodes(string currencyCode)
   {
     Logger.Info("QueryCurrencyResourceController@GetSupportedCurrencyCodes initiated...");
-    return _queryCurrenciesHandler.Handle(currencyCode)
+    var request = new QueryCurrencyDto
+    {
+      CurrencyCode = currencyCode
+    };
+    return _queryCurrenciesHandler.Handle(request)
       .Catch<IActionResult, Exception>(ex => ContentResultUtil.Throw(ex, StatusCodes.Status404NotFound))
       .ToTask();
   }
@@ -44,7 +53,11 @@ public class QueryCurrencyResourceController: ControllerBase
   public Task<IActionResult> GetExchangeRates(string quoteCurrency)
   {
     Logger.Info("QueryCurrencyResourceController@GetExchangeRates initiated...");
-    return _queryCurrenciesHandler.HandlePartyExchangeRatesQuery(quoteCurrency)
+    var request = new QueryCurrencyDto
+    {
+      QuoteCurrencyCode = quoteCurrency
+    };
+    return _queryExchangeRateHandler.Handle(request)
       .Catch<IActionResult, Exception>(ex => ContentResultUtil.Throw(ex, StatusCodes.Status404NotFound))
       .ToTask();
   }

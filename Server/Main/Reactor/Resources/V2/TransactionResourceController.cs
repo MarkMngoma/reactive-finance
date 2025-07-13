@@ -3,7 +3,7 @@ using System.Reactive.Threading.Tasks;
 using log4net;
 using Microsoft.AspNetCore.Mvc;
 using Server.Main.Reactor.Handlers.Business.Transactions;
-using Server.Main.Reactor.Models.Request.Transactions;
+using Server.Main.Reactor.Models.Dto.Transactions;
 using Server.Main.Reactor.Utils;
 
 namespace Server.Main.Reactor.Resources.V2;
@@ -21,10 +21,7 @@ public class TransactionResourceController : ControllerBase
   private readonly CreateAdhocTransactionHandler _createAdhocTransactionHandler;
   private readonly QueryTransactionHistoryHandler _queryTransactionHistoryHandler;
 
-  public TransactionResourceController(SettlementHandler settlementHandler,
-    CreateRefundTransactionHandler createRefundTransactionHandler,
-    CreateAdhocTransactionHandler createAdhocTransactionHandler,
-    QueryTransactionHistoryHandler queryTransactionHistoryHandler)
+  public TransactionResourceController(SettlementHandler settlementHandler, CreateRefundTransactionHandler createRefundTransactionHandler, CreateAdhocTransactionHandler createAdhocTransactionHandler, QueryTransactionHistoryHandler queryTransactionHistoryHandler)
   {
     _settlementHandler = settlementHandler;
     _createRefundTransactionHandler = createRefundTransactionHandler;
@@ -34,30 +31,30 @@ public class TransactionResourceController : ControllerBase
 
   [HttpPost]
   [Route("settlement")]
-  public Task<IActionResult> CreateSettlement([FromForm] UpdateTransactionRequest request)
+  public Task<IActionResult> CreateSettlement([FromForm] UpdateTransactionDto dto)
   {
     Logger.Info("TransactionResourceController@CreateSettlement initiated...");
-    return _settlementHandler.Handle(request)
+    return _settlementHandler.Handle(dto)
       .Catch<IActionResult, Exception>(ex => ContentResultUtil.Throw(ex, StatusCodes.Status422UnprocessableEntity))
       .ToTask();
   }
 
   [HttpPost]
   [Route("requestRefund")]
-  public Task<IActionResult> RequestRefund([FromBody] UpdateTransactionRequest request)
+  public Task<IActionResult> RequestRefund([FromBody] UpdateTransactionDto dto)
   {
     Logger.Info("TransactionResourceController@RequestRefund initiated...");
-    return _createRefundTransactionHandler.Handle(request)
+    return _createRefundTransactionHandler.Handle(dto)
       .Catch<IActionResult, Exception>(ex => ContentResultUtil.Throw(ex, StatusCodes.Status422UnprocessableEntity))
       .ToTask();
   }
 
   [HttpPost]
   [Route("adhoc")]
-  public Task<IActionResult> CreateAdhocTransaction([FromBody] CreateTransactionRequest request)
+  public Task<IActionResult> CreateAdhocTransaction([FromBody] CreateTransactionDto dto)
   {
     Logger.Info("TransactionResourceController@CreateAdhocTransaction initiated...");
-    return _createAdhocTransactionHandler.Handle(request)
+    return _createAdhocTransactionHandler.Handle(dto)
       .Catch<IActionResult, Exception>(ex => ContentResultUtil.Throw(ex, StatusCodes.Status422UnprocessableEntity))
       .ToTask();
   }

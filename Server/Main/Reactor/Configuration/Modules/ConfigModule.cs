@@ -8,7 +8,9 @@ public class ConfigModule
   public static void Configure(WebApplicationBuilder builder)
   {
     var configFile = $"Infrastructure/Configuration/config.{builder.Environment.EnvironmentName.ToLower()}.yaml";
-    builder.Configuration.AddYamlFile(configFile, optional: false, reloadOnChange: true);
+    builder.Configuration
+      .SetBasePath(AppContext.BaseDirectory)
+      .AddYamlFile(configFile, optional: false, reloadOnChange: true);
     builder.Services.AddConfig<IntegrationsConfig>(builder.Configuration, "IntegrationsConfig");
     builder.Services.AddConfig<TransactionConfig>(builder.Configuration, "TransactionConfig");
     builder.Services.AddConfig<ForexConfig>(builder.Configuration, "ForexConfig");
